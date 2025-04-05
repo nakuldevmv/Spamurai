@@ -1,6 +1,8 @@
 # Spamurai
-A clean inbox is a sharp mind. And I’m here to build the blade.
 
-👷‍♂️ Status: Currently slashing through code & spam.
+> **A clean inbox is a sharp mind. Spamurai is here to forge the blade.**
 
-🚧 This project is in active development. Not ready for production use (unless you're brave or dumb... or both).
+🚀 *Project Status:* Actively under development.  
+⚠️ *Note:* This project is in active development. Not ready for production use (unless you're brave or dumb... or both).
+
+Stay tuned as we slice through spam and refine the code!
