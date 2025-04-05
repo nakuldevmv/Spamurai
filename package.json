@@ -1,5 +1,8 @@
 {
   "dependencies": {
+    "dotenv": "^16.4.7",
+    "dotnet": "^1.1.4",
+    "mailparser": "^3.7.2",
     "node-imap": "^0.9.6"
   }
 }
