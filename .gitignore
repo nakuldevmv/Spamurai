@@ -1,16 +1,2 @@
-# 🕵️‍♂️ Secrets
 .env
-
-# 📦 Node modules — you NEVER commit this beast
 node_modules/
-
-# 🗑️ Log files
-*.log
-
-# 💥 Build artifacts
-dist/
-build/
-
-# 💻 OS-specific trash
-.DS_Store
-Thumbs.db
