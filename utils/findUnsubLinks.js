@@ -1,8 +1,7 @@
-// utils/findUnsubLinks.js
 export function findUnsubLinks(parsedEmail) {
     const links = [];
   
-    // Step 1: look in headers
+    // look in headers
     const headerValue = parsedEmail.headers.get('list-unsubscribe');
     if (headerValue) {
       const parts = headerValue.split(',');
@@ -12,7 +11,7 @@ export function findUnsubLinks(parsedEmail) {
       }
     }
   
-    // Step 2: look in HTML body
+    // look in HTML body
     if (parsedEmail.html) {
       const regex = /<a[^>]+href="([^"]+)"[^>]*>(.*?)<\/a>/gi;
       let match;
@@ -23,6 +22,6 @@ export function findUnsubLinks(parsedEmail) {
       }
     }
   
-    return [...new Set(links)]; // Deduplicate
+    return [...new Set(links)]; 
   }
   
