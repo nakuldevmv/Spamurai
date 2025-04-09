@@ -1,6 +1,8 @@
 import Imap from './node_modules/node-imap/lib/Connection.js';
 import { simpleParser } from 'mailparser';
 import dotenv from 'dotenv';
+import { findUnsubLinks } from './utils/findUnsubLinks.js';
+
 dotenv.config();
 
 const imap = new Imap({
@@ -17,9 +19,9 @@ export default function connectToInbox() {
       imap.openBox('INBOX', false, (err, box) => {
         if (err) return reject(err);
 
-        console.log(`📫 You’ve got ${box.messages.total} messages`);
+        console.log(`📫 Total Messages: ${box.messages.total}`);
 
-        imap.search([['SINCE', 'April 1, 2025']], (err, results) => {
+        imap.search(['ALL'], (err, results) => {
           if (err) {
             console.log('❌ Search Error:', err);
             return reject(err);
@@ -32,26 +34,40 @@ export default function connectToInbox() {
           }
 
           const fetch = imap.fetch(results, { bodies: '' });
+          const totalEmails = results.length;
+          let parsedCount = 0;
+          let totalLinks = 0;
 
           fetch.on('message', (msg) => {
             msg.on('body', (stream) => {
               simpleParser(stream, (err, mail) => {
+                parsedCount++;
+
                 if (err) {
                   console.log('⚠️ Parse Error:', err);
-                  return;
+                } else {
+                  const unsubLinks = findUnsubLinks(mail);
+                  if (unsubLinks.length > 0) {
+
+                    console.log('---------------------------');
+                    console.log('👤 Sender:', mail.from.text);
+                    console.log('📝 Subject:', mail.subject);
+
+                    console.log('🔗 Links are:');
+                    unsubLinks.forEach(link => {
+                      console.log(`↗️  ${link}`);
+                      totalLinks++;
+                    });
+                  }
                 }
 
-                console.log('---------------------------');
-                console.log('👤 Sender:', mail.from.text);
-                console.log('📝 Subject:', mail.subject);
-                console.log('💬 Body preview:', mail.text?.substring(0, 100), '...');
+                if (parsedCount === totalEmails) {
+                  console.log(`Total Links fetched: ${totalLinks}`);
+                  console.log('✅ Finished fetching emails');
+                  imap.end();
+                }
               });
             });
-          });
-
-          fetch.once('end', () => {
-            console.log('✅ Finished fetching emails.');
-            imap.end();
           });
         });
       });
@@ -63,7 +79,7 @@ export default function connectToInbox() {
     });
 
     imap.once('end', () => {
-      console.log('🚪 IMAP connection closed.');
+      console.log('>> IMAP connection closed <<');
       resolve();
     });
 
