@@ -21,7 +21,7 @@ export default function connectToInbox() {
 
         console.log(`📫 Total Messages: ${box.messages.total}`);
 
-        imap.search(['ALL'], (err, results) => {
+        imap.search(['SCINCE',['1 April 2025']], (err, results) => {
           if (err) {
             console.log('❌ Search Error:', err);
             return reject(err);
