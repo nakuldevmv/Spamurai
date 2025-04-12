@@ -16,12 +16,22 @@ const imap = new Imap({
 export default function connectToInbox() {
   return new Promise((resolve, reject) => {
     imap.once('ready', () => {
+      
+      imap.getBoxes((err, boxes) => {
+        if (err) throw err;
+        console.log("📦 Here's all the folders you got:");
+        console.dir(boxes, { depth: null });
+    });
+    
+
       imap.openBox('INBOX', false, (err, box) => {
+      // imap.openBox('[Gmail]/Spam', false, (err, box) => {  //used to access spam folder
         if (err) return reject(err);
 
         console.log(`📫 Total Messages: ${box.messages.total}`);
-
-        imap.search(['SCINCE',['1 April 2025']], (err, results) => {
+        
+        imap.search([['SINCE','APRIL 1, 2025']], (err, results) => {
+        // imap.search(['ALL'], (err, results) => {
           if (err) {
             console.log('❌ Search Error:', err);
             return reject(err);
