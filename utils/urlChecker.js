@@ -23,4 +23,4 @@ async function checkUrl(url) {
     }
 }
 
-checkUrl('http://trezorsuites.my.canva.site');
+// checkUrl('http://trezorsuites.my.canva.site');
