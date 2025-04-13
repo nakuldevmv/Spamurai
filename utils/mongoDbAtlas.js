@@ -20,6 +20,14 @@ async function run() {
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
+
+    const database = client.db("urls_db");
+    const urlsCollection = database.collection("scanned urls");
+
+    const query = { url: false };
+    const result = await urlsCollection.find(query).toArray();
+    console.log(result);
+    
   } finally {
     // Ensures that the client will close when you finish/error
     await client.close();
