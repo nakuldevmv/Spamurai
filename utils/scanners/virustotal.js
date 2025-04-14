@@ -12,13 +12,11 @@ export default async function virustotal(url) {
             },
             body: `url=${encodeURIComponent(url)}`
         });
-
         const submitData = await submitRes.json();
         const scanId = submitData.data.id;
         let result_Data;
         let status = '';
         let sec = 0;
-
         while (status !== 'completed') {
             const resultRes = await fetch(`https://www.virustotal.com/api/v3/analyses/${scanId}`, {
                 method: 'GET',
@@ -26,7 +24,6 @@ export default async function virustotal(url) {
                     'x-apikey': process.env.virustotal_API,
                 }
             });
-
             result_Data = await resultRes.json();
             status = result_Data.data.attributes.status;
             sec++;
@@ -34,17 +31,11 @@ export default async function virustotal(url) {
                 await new Promise((res) => setTimeout(res, 1000));
             }
         }
-
-        console.log('Scan Completed ✅');
-        console.log('Scan Result 🔍:', result_Data.data.attributes.stats);
-        console.log('Time Taken :⏱️', sec, 's');
-        return result_Data;
-
+        // console.log('Scan Completed ✅');
+        // console.log('Time Taken :⏱️ ', sec,'s');
+        return result_Data.data.attributes.stats;
     } catch (err) {
         console.error('Error with VirusTotal 🛑:', err);
         return err;
     }
 }
-
-// Test it
-virustotal('https://nvidia.com');

@@ -1,15 +1,34 @@
 import dotenv from 'dotenv';
-
+import virustotal from './scanners/virustotal.js';
+import ipqs from './scanners/ipqs.js';
 dotenv.config();
-async function checkUrl(url) {
-  // ipqs(url);
-  if (data.unsafe || data.phishing || data.risk_score > 70) {
-    console.log(`🚨 High risk: ${url}`);
-  } else if (data.redirected && !data.final_url.includes(data.root_domain)) {
-    console.log(`⚠️ Suspicious redirect from ${data.root_domain} to ${data.final_url}`);
+
+export default async function checkUrl(url) {
+  const ipqsData = await ipqs(url);
+
+  if (ipqsData?.unsafe || ipqsData?.spamming || ipqsData?.malware || ipqsData?.phishing ||
+    ipqsData?.suspicious || ipqsData?.adult || ipqsData?.risky_tld || ipqsData?.risk_score >= 70) {
+      return "Unsafe ⚠️";
+
+  } else if (ipqsData?.redirected && !normalizeDomain(ipqsData?.final_url).includes(normalizeDomain(ipqsData?.root_domain))) {
+    return "Unsafe ⚠️";
+
+
   } else {
-    console.log(`✅ Looks safe: ${url}`);
+    const vtData = await virustotal(url);
+    if (vtData?.malicious >= 1 || vtData?.suspicious >= 1) {
+      return "Unsafe ⚠️";
+
+    } else {
+      return "Safe ✅";
+
+    }
   }
 }
 
-checkUrl('https://paypal.com');
+function normalizeDomain(domain) {
+  return domain.replace(/^www\./, '').toLowerCase();
+}
+
+
+// checkUrl('https://pornhub.com');
