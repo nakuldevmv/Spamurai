@@ -19,47 +19,69 @@ export default function connectToInbox() {
     const emails = [];
     let totalToParse = 0;
     let parsedCount = 0;
-
+    // imap.once('ready', () => {
+    //   imap.getBoxes((err, boxes) => {
+    //     if (err) {
+    //       console.log('❌ Error fetching folders:', err);
+    //     } else {
+    //       console.log('📂 Available folders:', boxes);
+    //     }
+    //   });
+    // });
+    
     imap.once('ready', () => {
       // STEP 1: Clean Spam first
-      imap.openBox('[Gmail]/Spam', false, (err, box) => {
-        if (err) return reject(err);
+      cleanFolder('[Gmail]/Spam', 'Spam')
+      .then(() => cleanFolder('[Gmail]/Trash', 'Trash'))
+      .then(() => openInbox()) // Step 2 calls inbox after cleaning all folders
+      .catch((err) => {
+          console.log('❌ Error in cleaning folders:', err);
+          reject(err); // Catch any error during cleaning process
+        });
 
-        console.log(`📫 Total Spam Messages: ${box.messages.total}`);
+      function cleanFolder(folderName, folderLabel) {
+        return new Promise((resolve, reject) => {
+          imap.openBox(folderName, false, (err, box) => {
+            if (err) return reject(err);
 
-        imap.search(['ALL'], (err, results) => {
-          if (err) {
-            console.log('❌ Search Error in Spam:', err);
-            return reject(err);
-          }
+            console.log(`📫 Total ${folderLabel} Messages: ${box.messages.total}`);
 
-          if (!results.length) {
-            console.log('📭 No spam emails to delete.');
-            return openInbox(); //Step 2 calls inbox after cleaning spam
-          }
+            imap.search(['ALL'], (err, results) => {
+              if (err) {
+                console.log(`❌ Search Error in ${folderLabel}:`, err);
+                return reject(err);
+              }
 
-          const fetch = imap.fetch(results, { bodies: '' });
+              if (!results.length) {
+                console.log(`📭 No ${folderLabel} emails to delete.`);
+                return resolve(); // Move to the next folder
+              }
 
-          fetch.on('message', (msg) => {
-            msg.once('attributes', (attrs) => {
-              const { uid } = attrs;
-              console.log(`🗑️ Deleting Spam UID: ${uid}`);
-              imap.addFlags(uid, '\\Deleted', (err) => {
-                if (err) console.log('⚠️ Error marking spam for deletion:', err);
+              const fetch = imap.fetch(results, { bodies: '' });
+
+              fetch.on('message', (msg) => {
+                msg.once('attributes', (attrs) => {
+                  const { uid } = attrs;
+                  console.log(`🗑️ Deleting ${folderLabel} UID: ${uid}`);
+                  imap.addFlags(uid, '\\Deleted', (err) => {
+                    if (err) console.log(`⚠️ Error marking ${folderLabel} email for deletion:`, err);
+                  });
+                });
+              });
+
+              fetch.once('end', () => {
+                imap.expunge((err) => {
+                  if (err) console.log('❌ Expunge Error:', err);
+                  else console.log(`✅ ${folderLabel} emails deleted.`);
+                  resolve(); // Folder is clean, move on
+                });
               });
             });
           });
-
-          fetch.once('end', () => {
-            imap.expunge((err) => {
-              if (err) console.log('❌ Expunge Error:', err);
-              else console.log('✅ Spam emails deleted.');
-
-              openInbox(); //Step 2 calls inbox after cleaning spam
-            });
-          });
         });
-      });
+      }
+
+
 
       function openInbox() {
         // STEP 2: Scan INBOX
@@ -68,7 +90,7 @@ export default function connectToInbox() {
 
           console.log(`📨 Total Inbox Messages: ${box.messages.total}`);
 
-          imap.search([['SINCE', 'APRIL 13, 2025']], (err, results) => {
+          imap.search([['SINCE', 'JANUARY 1, 2025']], (err, results) => {
             if (err) {
               console.log('❌ Inbox Search Error:', err);
               return reject(err);
@@ -84,12 +106,30 @@ export default function connectToInbox() {
             const fetch = imap.fetch(results, { bodies: '' });
 
             fetch.on('message', (msg) => {
+              let isImportant = false;
+              let isFlagged = false;
+              let attrs = null;
+
+              msg.on('attributes', (attributes) => {
+                attrs = attributes;
+                const labels = attrs['x-gm-labels'] || [];
+                const flags = attrs.flags || [];
+
+                isImportant = labels.includes('\\Important');
+                isFlagged = flags.includes('\\Flagged');
+              });
               msg.on('body', (stream) => {
                 simpleParser(stream, async (err, mail) => {
                   if (err) {
                     console.log('⚠️ Parse Error:', err);
                   } else {
-                    emails.push(mail);
+                    if (!isImportant && !isFlagged) {
+
+                      emails.push(mail);
+                    } else {
+                      console.log(`⚠️ Skipped important or flagged: ${mail.subject}`);
+                    }
+
                   }
 
                   parsedCount++;
@@ -119,16 +159,16 @@ export default function connectToInbox() {
           console.log('---------------------------');
           console.log('👤 Sender:', mail.from.text);
           console.log('📝 Subject:', mail.subject);
-
-          for (const link of unsubLinks) {
-            const verdict = await checkUrl(link);
-            console.log(`🔗 Link Status: ${verdict}`);
-            totalLinks++;
-          }
+//disabled api calls for now
+          // for (const link of unsubLinks) {
+          //   const verdict = await checkUrl(link);
+          //   console.log(`🔗 Link Status: ${verdict}`);
+          //   totalLinks++;
+          // }
         }
-      }
+      } +
 
-      console.log(`📊 Total Links Found: ${totalLinks}`);
+        console.log(`📊 Total Links Found: ${totalLinks}`);
       console.log('✅ Done & Dusted.');
       resolve();
     });
