@@ -2,7 +2,7 @@
 import { MongoClient, ServerApiVersion } from 'mongodb';
 import dotenv from 'dotenv';
 dotenv.config();
-const uri=`mongodb+srv://${process.env.USER_NAME}:${encodeURIComponent(process.env.PASSWORD)}@spamurai.gjpxkae.mongodb.net/?retryWrites=true&w=majority&appName=Spamurai`;
+const uri=`mongodb+srv://${process.env.USER_NAME}:${encodeURIComponent(process.env.PASSWORD)}@${process.env.DATABASE}`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -24,7 +24,7 @@ async function run() {
     const database = client.db("urls_db");
     const urlsCollection = database.collection("scanned urls");
 
-    const query = { url: false };
+    const query = { unsafe: false };
     const result = await urlsCollection.find(query).toArray();
     console.log(result);
     
