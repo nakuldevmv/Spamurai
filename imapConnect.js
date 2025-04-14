@@ -21,85 +21,87 @@ export default function connectToInbox() {
     let parsedCount = 0;
 
     imap.once('ready', () => {
-      //spam folder cleaning
-      imap.openBox('[Gmail]/Spam',false,(err,box)=>{
-        if(err)return reject(err);
+      // STEP 1: Clean Spam first
+      imap.openBox('[Gmail]/Spam', false, (err, box) => {
+        if (err) return reject(err);
 
-        console.log(`📫 Total Number of Spam Messages: ${box.messages.total}`);
-         imap.search(['ALL'], (err, results) => {
+        console.log(`📫 Total Spam Messages: ${box.messages.total}`);
+
+        imap.search(['ALL'], (err, results) => {
           if (err) {
-            console.log('❌ Search Error:', err);
+            console.log('❌ Search Error in Spam:', err);
             return reject(err);
           }
 
           if (!results.length) {
-            console.log('📭 No recent emails found.');
-            imap.end();
-            return resolve();
+            console.log('📭 No spam emails to delete.');
+            return openInbox(); //Step 2 calls inbox after cleaning spam
           }
 
-          totalToParse = results.length;
           const fetch = imap.fetch(results, { bodies: '' });
 
           fetch.on('message', (msg) => {
-            msg.on('body', (stream) => {
-              simpleParser(stream, async (err, mail) => {
-                if (err) {
-                  console.log('⚠️ Parse Error:', err);
-                } else {
-                  emails.push(mail);
-                }
+            msg.once('attributes', (attrs) => {
+              const { uid } = attrs;
+              console.log(`🗑️ Deleting Spam UID: ${uid}`);
+              imap.addFlags(uid, '\\Deleted', (err) => {
+                if (err) console.log('⚠️ Error marking spam for deletion:', err);
+              });
+            });
+          });
 
-                parsedCount++;
-                if (parsedCount === totalToParse) {
-                  imap.end(); 
-                }
+          fetch.once('end', () => {
+            imap.expunge((err) => {
+              if (err) console.log('❌ Expunge Error:', err);
+              else console.log('✅ Spam emails deleted.');
+
+              openInbox(); //Step 2 calls inbox after cleaning spam
+            });
+          });
+        });
+      });
+
+      function openInbox() {
+        // STEP 2: Scan INBOX
+        imap.openBox('INBOX', false, (err, box) => {
+          if (err) return reject(err);
+
+          console.log(`📨 Total Inbox Messages: ${box.messages.total}`);
+
+          imap.search([['SINCE', 'APRIL 13, 2025']], (err, results) => {
+            if (err) {
+              console.log('❌ Inbox Search Error:', err);
+              return reject(err);
+            }
+
+            if (!results.length) {
+              console.log('📭 No recent emails found.');
+              imap.end();
+              return resolve();
+            }
+
+            totalToParse = results.length;
+            const fetch = imap.fetch(results, { bodies: '' });
+
+            fetch.on('message', (msg) => {
+              msg.on('body', (stream) => {
+                simpleParser(stream, async (err, mail) => {
+                  if (err) {
+                    console.log('⚠️ Parse Error:', err);
+                  } else {
+                    emails.push(mail);
+                  }
+
+                  parsedCount++;
+                  if (parsedCount === totalToParse) {
+                    imap.end();
+                  }
+                });
               });
             });
           });
         });
-      })
-
-
-      // imap.openBox('INBOX', false, (err, box) => {
-      //   if (err) return reject(err);
-
-      //   console.log(`📫 Total Messages: ${box.messages.total}`);
-
-      //   imap.search([['SINCE', 'APRIL 13, 2025']], (err, results) => {
-      //     if (err) {
-      //       console.log('❌ Search Error:', err);
-      //       return reject(err);
-      //     }
-
-      //     if (!results.length) {
-      //       console.log('📭 No recent emails found.');
-      //       imap.end();
-      //       return resolve();
-      //     }
-
-      //     totalToParse = results.length;
-      //     const fetch = imap.fetch(results, { bodies: '' });
-
-      //     fetch.on('message', (msg) => {
-      //       msg.on('body', (stream) => {
-      //         simpleParser(stream, async (err, mail) => {
-      //           if (err) {
-      //             console.log('⚠️ Parse Error:', err);
-      //           } else {
-      //             emails.push(mail);
-      //           }
-
-      //           parsedCount++;
-      //           if (parsedCount === totalToParse) {
-      //             imap.end(); 
-      //           }
-      //         });
-      //       });
-      //     });
-      //   });
-      // });
-
+      }
     });
 
     imap.once('error', (err) => {
@@ -120,15 +122,14 @@ export default function connectToInbox() {
 
           for (const link of unsubLinks) {
             const verdict = await checkUrl(link);
-            console.log(`🔗Link Status : ${verdict}`);
+            console.log(`🔗 Link Status: ${verdict}`);
             totalLinks++;
           }
         }
       }
 
-      console.log(`Total Links fetched: ${totalLinks}`);
-      console.log('✅ Finished fetching emails');
-      console.log('>> IMAP connection closed <<');
+      console.log(`📊 Total Links Found: ${totalLinks}`);
+      console.log('✅ Done & Dusted.');
       resolve();
     });
 
