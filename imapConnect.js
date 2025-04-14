@@ -21,12 +21,12 @@ export default function connectToInbox() {
     let parsedCount = 0;
 
     imap.once('ready', () => {
-      imap.openBox('INBOX', false, (err, box) => {
-        if (err) return reject(err);
+      //spam folder cleaning
+      imap.openBox('[Gmail]/Spam',false,(err,box)=>{
+        if(err)return reject(err);
 
-        console.log(`📫 Total Messages: ${box.messages.total}`);
-
-        imap.search([['SINCE', 'APRIL 13, 2025']], (err, results) => {
+        console.log(`📫 Total Number of Spam Messages: ${box.messages.total}`);
+         imap.search(['ALL'], (err, results) => {
           if (err) {
             console.log('❌ Search Error:', err);
             return reject(err);
@@ -58,7 +58,48 @@ export default function connectToInbox() {
             });
           });
         });
-      });
+      })
+
+
+      // imap.openBox('INBOX', false, (err, box) => {
+      //   if (err) return reject(err);
+
+      //   console.log(`📫 Total Messages: ${box.messages.total}`);
+
+      //   imap.search([['SINCE', 'APRIL 13, 2025']], (err, results) => {
+      //     if (err) {
+      //       console.log('❌ Search Error:', err);
+      //       return reject(err);
+      //     }
+
+      //     if (!results.length) {
+      //       console.log('📭 No recent emails found.');
+      //       imap.end();
+      //       return resolve();
+      //     }
+
+      //     totalToParse = results.length;
+      //     const fetch = imap.fetch(results, { bodies: '' });
+
+      //     fetch.on('message', (msg) => {
+      //       msg.on('body', (stream) => {
+      //         simpleParser(stream, async (err, mail) => {
+      //           if (err) {
+      //             console.log('⚠️ Parse Error:', err);
+      //           } else {
+      //             emails.push(mail);
+      //           }
+
+      //           parsedCount++;
+      //           if (parsedCount === totalToParse) {
+      //             imap.end(); 
+      //           }
+      //         });
+      //       });
+      //     });
+      //   });
+      // });
+
     });
 
     imap.once('error', (err) => {

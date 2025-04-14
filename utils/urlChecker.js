@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import virustotal from './scanners/virustotal.js';
+// import virustotal from './scanners/virustotal.js';
 import ipqs from './scanners/ipqs.js';
 dotenv.config();
 
@@ -15,14 +15,15 @@ export default async function checkUrl(url) {
 
 
   } else {
-    const vtData = await virustotal(url);
-    if (vtData?.malicious >= 1 || vtData?.suspicious >= 1) {
-      return "Unsafe ⚠️";
+    //temporarly disabled VirusTotal
+    // const vtData = await virustotal(url);
+    // if (vtData?.malicious >= 1 || vtData?.suspicious >= 1) {
+    //   return "Unsafe ⚠️ by VT";
 
-    } else {
+    // } else {
       return "Safe ✅";
 
-    }
+    // }
   }
 }
 
