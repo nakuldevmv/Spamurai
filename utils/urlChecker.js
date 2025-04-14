@@ -1,5 +1,4 @@
 import dotenv from 'dotenv';
-import ipqs from 'util/ipqsScanner.js'
 
 dotenv.config();
 async function checkUrl(url) {
