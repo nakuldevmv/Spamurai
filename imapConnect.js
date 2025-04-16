@@ -159,7 +159,7 @@ export default function connectToInbox() {
           console.log('---------------------------');
           console.log('👤 Sender:', mail.from.text);
           console.log('📝 Subject:', mail.subject);
-//disabled api calls for now
+          //disabled api calls for now
           // for (const link of unsubLinks) {
           //   const verdict = await checkUrl(link);
           //   console.log(`🔗 Link Status: ${verdict}`);
