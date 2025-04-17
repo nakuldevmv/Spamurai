@@ -11,8 +11,7 @@ export default async function ipqs(url) {
         const data = await response.json();
         return data;
     } catch (err) {
-        console.error('Error with IPQS 🛑:', err);
-        return err;
+        console.log("👀  Couldn’t verify — API died or link buggin");
     }
 }
 

@@ -186,7 +186,7 @@ export default function connectToInbox() {
               sender_name: getName(mail.from.text),
               domain: getDomain(link),
               link:link,
-              status: await checkUrl(new URL(link)),
+              status: await checkUrl(link),
               
             };
             try {
