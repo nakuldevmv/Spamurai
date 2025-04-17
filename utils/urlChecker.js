@@ -8,10 +8,12 @@ export default async function checkUrl(url) {
 
   if (ipqsData?.unsafe || ipqsData?.spamming || ipqsData?.malware || ipqsData?.phishing ||
     ipqsData?.suspicious || ipqsData?.adult || ipqsData?.risky_tld || ipqsData?.risk_score >= 70) {
-      return "Unsafe ⚠️";
+      console.log("Link Status : Unsafe ⚠️");
+      return false;
 
   } else if (ipqsData?.redirected && !normalizeDomain(ipqsData?.final_url).includes(normalizeDomain(ipqsData?.root_domain))) {
-    return "Unsafe ⚠️";
+    console.log("Link Status : Unsafe ⚠️");
+    return false;
 
 
   } else {
@@ -21,7 +23,8 @@ export default async function checkUrl(url) {
     //   return "Unsafe ⚠️ by VT";
 
     // } else {
-      return "Safe ✅";
+      console.log("Link Status : Safe ✅");
+      return true;
 
     // }
   }
