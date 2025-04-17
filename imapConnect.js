@@ -3,8 +3,25 @@ import { simpleParser } from 'mailparser';
 import dotenv from 'dotenv';
 import { findUnsubLinks } from './utils/findUnsubLinks.js';
 import checkUrl from './utils/urlChecker.js';
+import { MongoClient } from 'mongodb';
 
 dotenv.config();
+const uri = `mongodb+srv://${process.env.DB_USERNAME}:${encodeURIComponent(process.env.DB_PASSWORD)}@${process.env.CLUSTER}`;
+
+const client = new MongoClient(uri);
+let db;
+let collection = process.env.DB_COLLECTION;
+async function connectDB() {
+  try {
+    await client.connect();
+    db = await client.db(process.env.DB_NAME);
+    console.log("🗃️  Connected to Spamurai's Database");
+
+  } catch (err) {
+    console.log(err);
+  }
+}
+connectDB();
 
 const imap = new Imap({
   user: process.env.EMAIL,
@@ -28,13 +45,13 @@ export default function connectToInbox() {
     //     }
     //   });
     // });
-    
+
     imap.once('ready', () => {
       // STEP 1: Clean Spam first
       cleanFolder('[Gmail]/Spam', 'Spam')
-      .then(() => cleanFolder('[Gmail]/Trash', 'Trash'))
-      .then(() => openInbox()) // Step 2 calls inbox after cleaning all folders
-      .catch((err) => {
+        .then(() => cleanFolder('[Gmail]/Trash', 'Trash'))
+        .then(() => openInbox()) // Step 2 calls inbox after cleaning all folders
+        .catch((err) => {
           console.log('❌ Error in cleaning folders:', err);
           reject(err); // Catch any error during cleaning process
         });
@@ -89,8 +106,9 @@ export default function connectToInbox() {
           if (err) return reject(err);
 
           console.log(`📨 Total Inbox Messages: ${box.messages.total}`);
-
-          imap.search([['SINCE', 'JANUARY 1, 2025']], (err, results) => {
+          
+          // imap.search(['ALL'], (err, results) => {
+          imap.search([['SINCE', 'APRIL 16, 2025']], (err, results) => {
             if (err) {
               console.log('❌ Inbox Search Error:', err);
               return reject(err);
@@ -160,18 +178,37 @@ export default function connectToInbox() {
           console.log('👤 Sender:', mail.from.text);
           console.log('📝 Subject:', mail.subject);
           //disabled api calls for now
-          // for (const link of unsubLinks) {
-          //   const verdict = await checkUrl(link);
-          //   console.log(`🔗 Link Status: ${verdict}`);
-          //   totalLinks++;
-          // }
-        }
-      } +
+          for (const link of unsubLinks) {
+            const linkData = {
+              sender: mail.from.text,
+              url: link,
+              status: 'pending',
+              date: new Date(),
+            }
+            try {
 
-        console.log(`📊 Total Links Found: ${totalLinks}`);
-      console.log('✅ Done & Dusted.');
-      resolve();
-    });
+              await db.collection(process.env.DB_COLLECTION).insertOne(linkData);
+            }
+            catch(err) {
+              if (err.errorResponse.code === 11000) {
+                console.log("🛑 Mongo caught a duplicate!");
+              } else {
+                console.log("💥 Some other error:", err);
+              }
+            }
+              // const verdict = await checkUrl(link);
+              // console.log(`🔗 Link Status: ${verdict}`);
+              totalLinks++;
+            }
+          }
+        } +
+
+          console.log(`📊 Total Links Found: ${totalLinks}`);
+        console.log('✅ Done & Dusted.');
+        resolve();
+        client.close();
+        console.log("MongoDB connection closed.");
+      });
 
     imap.connect();
   });
