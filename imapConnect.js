@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { findUnsubLinks } from './utils/findUnsubLinks.js';
 import checkUrl from './utils/urlChecker.js';
 import { MongoClient } from 'mongodb';
+import { getDomain,getMail,getName,getdate } from './utils/getters.js';
 
 dotenv.config();
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${encodeURIComponent(process.env.DB_PASSWORD)}@${process.env.CLUSTER}`;
@@ -180,11 +181,14 @@ export default function connectToInbox() {
           //disabled api calls for now
           for (const link of unsubLinks) {
             const linkData = {
-              sender: mail.from.text,
-              url: link,
-              status: 'pending',
-              date: new Date(),
-            }
+              date: getdate(),
+              sender_mail: getMail(mail.from.text),
+              sender_name: getName(mail.from.text),
+              domain: getDomain(link),
+              link:link,
+              status: await checkUrl(new URL(link)),
+              
+            };
             try {
 
               await db.collection(process.env.DB_COLLECTION).insertOne(linkData);
@@ -196,7 +200,8 @@ export default function connectToInbox() {
                 console.log("💥 Some other error:", err);
               }
             }
-              // const verdict = await checkUrl(link);
+              // const verdict = await 
+              // checkUrl(link);
               // console.log(`🔗 Link Status: ${verdict}`);
               totalLinks++;
             }

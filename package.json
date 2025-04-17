@@ -7,6 +7,7 @@
     "mailparser": "^3.7.2",
     "mongodb": "^6.15.0",
     "node-fetch": "^3.3.2",
-    "node-imap": "^0.9.6"
+    "node-imap": "^0.9.6",
+    "psl": "^1.15.0"
   }
 }
