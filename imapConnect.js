@@ -110,7 +110,7 @@ export default function connectToInbox() {
           console.log(`📨  Total Inbox Messages : ${box.messages.total}`);
 
           // imap.search(['ALL'], (err, results) => {
-          imap.search([['SINCE', 'APRIL 13, 2025']], (err, results) => {
+          imap.search([['SINCE', 'APRIL 10, 2025']], (err, results) => {
             if (err) {
               console.log('🔴  Inbox Search Error:', err);
               return reject(err);
@@ -147,7 +147,7 @@ export default function connectToInbox() {
 
                       emails.push(mail);
                     } else {
-                      console.log(`🔷  Skipped important or flagged: ${mail.subject}`);
+                      console.log(`🔶  Skipped important or flagged: ${mail.subject}`);
                     }
 
                   }
@@ -185,9 +185,9 @@ export default function connectToInbox() {
             let scannedLink = await db.collection(collection).findOne({ domain: getDomain(link) });
             if (scannedLink) {
              if(scannedLink.isSafe){
-              console.log("✅  Link is Safe already scanned skiping...");
+              console.log("✅  Link is Safe and its already scanned skiping...");
              }else if(!scannedLink.isSafe){
-              console.log("⚠️  Link is Unsafe already scanned skiping...");
+              console.log("⚠️  Link is Unsafe and its already scanned skiping...");
               }else{
                 console.log("🔴 Link is not properly scanned yet");
               }
@@ -215,11 +215,6 @@ export default function connectToInbox() {
                 }
               }
             }
-            
-
-            // const verdict = await 
-            // checkUrl(link);
-            // console.log(`🔗 Link Status: ${verdict}`);
             totalLinks++;
           }
         }
