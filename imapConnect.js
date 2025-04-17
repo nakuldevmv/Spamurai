@@ -189,7 +189,7 @@ export default function connectToInbox() {
              }else if(!scannedLink.isSafe){
               console.log("⚠️  Link is Unsafe and its already scanned skiping...");
               }else{
-                console.log("🔴 Link is not properly scanned yet");
+                console.log("🔴  Link is not properly scanned yet");
               }
             }else{
               const isSafe = await checkUrl(link);
