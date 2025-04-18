@@ -1,6 +1,7 @@
 {
   "type": "module",
   "dependencies": {
+    "axios": "^1.8.4",
     "dotenv": "^16.4.7",
     "dotnet": "^1.1.4",
     "express": "^5.1.0",
@@ -8,6 +9,7 @@
     "mongodb": "^6.15.0",
     "node-fetch": "^3.3.2",
     "node-imap": "^0.9.6",
-    "psl": "^1.15.0"
+    "psl": "^1.15.0",
+    "puppeteer": "^24.6.1"
   }
 }
