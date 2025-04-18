@@ -1,6 +1,7 @@
 import puppeteer from "puppeteer";
 import isCaptcha from "./captcha.js";
 
+// Test links
 // const link = 'https://www.lalal.ai/unsubscribe/?email=jo.cly.n1561%40gmail.com';
 // const link = 'https://links.email.lumalabs.ai/f/a/x6rRxxj6vxUKXuKf4wh2NA~~/AAQRxRA~/KonVfcZ8FktdwegSXUuWg1is6wVuAbAzdyoRQFnHhoKfpE9RtQwJ1vJgtYekX9cXI-zw5adhprW4kzajN_OXcgg6sSY1pdpIEGXTQuUbY7wdL46NA9cD3pFmhN6ePHjB2guBeirAw0Xyp6UlAngmdgKqgQLL65TJSnJcFTTEwZiE7iH0vWc9RJ0FNfGQzupLJNk0I9hND5fQGCHaJYXJ8FDtSIKPGsAJnh0G4y3cYPDDNvZHXglo1DmDx3_CT9_cIkJ2W61ftd0y9fJ8v4MUXITPvGPvXoXOry-nsYldO_cfRYJqZz8RfrnhKB_CYaqa5k9NAdvefC3InnS6o0-B47iAMTL-cb3QeWOD3YR4cXa3jcXv8BfOZ0_T9LOuhcv3yB3CaaKV2sXajK6yqbGMIxt7dVdvw8YaArZkmNVcrOi7qF-YQsJv6ocraj0u4DXHv_-DgNTC67R1ALkRkSHcaEIKn4AZWuHcYEGcvsyPoheh4R_Tg6gJGL8_GZW_kUrw8OmfTUlSfEjc4Prwyz-Sz75zZr-F2q3V-ubiwwuKvj406EOs6WixbYzfpJ-xsg7Q-xBHuvozXXue5wXFQ2zbYki3WMVUfSUWwqyb2pdGRMvaR5awJZbVb9dudxccsZcTNo84AX0ozm2Yn-cSYQn77IU7NGyfvzsIQiywZkBJXbU~'
 // const link = 'https://www.ipqualityscore.com/user/manage/notifications/9q37lQU4z9Q0WdigvI1JrUDVVj500x9lfKAPE0UCa75pFSnu9tr6HnaC3AkOmaYnVI2slycqbQ0adCtkyagRiBWmGgY9PVGnxiMLFNtm4rjqKeKY4cYNJQIEoEh3bx25feBuAdHzkfiHi23LwBTChXck2v0XZb5VlXHwSDsFNY0QNNnUIRI5XDsJWUf4E6sVKsfuqw4rPpqLDMi0j36disg7lHVrLO7ZM5NjP9uColE2hHHDJP1BSt3cBvsnh1FULdq8FoCZIums68WHGMfBtWGbHlfLsz8upDZidJOi5HEr8g26EIbPFxcYZbIGFqM56NtGhFjoPuBXTd1137qLrIL7dQAos3rj';
@@ -11,9 +12,9 @@ export default async function unsub(link) {
     const page = await browser.newPage();
 
     const response = await page.goto(link, {
-        waitUntil: 'networkidle2', 
-        timeout: 60000 
-    }); 
+        waitUntil: 'networkidle2',
+        timeout: 60000
+    });
     const statusCode = [200, 204, 206]
     if (statusCode.includes(response.status())) {
         try {
@@ -51,7 +52,6 @@ export default async function unsub(link) {
                 const elementIsReal = await unsubElement.jsonValue();
                 if (!elementIsReal) {
                     console.log("ℹ️  No visible unsubscribe element.");
-                    // const pageContent = await page.content();
                     if (pageContent.toLowerCase().includes("you have been unsubscribed") ||
                         pageContent.toLowerCase().includes("successfully removed") ||
                         pageContent.toLowerCase().includes("you're unsubscribed") ||
@@ -90,4 +90,4 @@ export default async function unsub(link) {
 
 }
 
-unsub(link);
+// unsub(link);

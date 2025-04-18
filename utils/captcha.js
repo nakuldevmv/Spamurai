@@ -29,13 +29,11 @@ export default async function isCaptcha(link, pageContent = null) {
     ];
 
     try {
-        // If page content is passed in, check that
         if (pageContent) {
             const html = pageContent.toLowerCase();
             return CAPTCHA_KEYWORDS.some(word => html.includes(word));
         }
 
-        // Otherwise try fetching it with Axios
         const { data } = await axios.get(link);
         const lowerHTML = data.toLowerCase();
         return CAPTCHA_KEYWORDS.some(word => lowerHTML.includes(word));
