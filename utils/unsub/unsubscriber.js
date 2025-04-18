@@ -23,7 +23,7 @@ export default async function unsub(link) {
             const pageContent = await page.content();
             if (await isCaptcha(link, pageContent)) {
                 console.log("🧱 CAPTCHA detected via HTML sniff!");
-                await page.screenshot({ path: 'captcha_detected.png' });
+                // await page.screenshot({ path: 'captcha_detected.png' });
                 await browser.close();
                 return;
             }
@@ -69,17 +69,17 @@ export default async function unsub(link) {
                 await unsubElement.click();
                 await page.waitForNetworkIdle();
                 console.log("👋 Unsubscribe element clicked!");
-                await page.screenshot({ path: 'result.png' });
+                // await page.screenshot({ path: 'result.png' });
 
             } else {
                 console.log("❌ Couldn't find an Unsubscribe element!");
-                await page.screenshot({ path: 'result.png' });
+                // await page.screenshot({ path: 'result.png' });
 
             }
 
         } catch (error) {
             console.log("💥 Error while unsubbing:", error.message);
-            await page.screenshot({ path: 'result.png' });
+            // await page.screenshot({ path: 'result.png' });
         } finally {
             await browser.close();
         }

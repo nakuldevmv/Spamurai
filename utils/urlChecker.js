@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import unsub from './unsub/unsubscriber.js';
 // import virustotal from './scanners/virustotal.js';
 import ipqs from './scanners/ipqs.js';
 dotenv.config();
@@ -23,6 +24,7 @@ export default async function checkUrl(url) {
     //   return "Unsafe ⚠️ by VT";
 
     // } else {
+      await unsub(url);
       console.log("Link Status : Safe ✅");
       return true;
 
