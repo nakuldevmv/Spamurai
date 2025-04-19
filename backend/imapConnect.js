@@ -41,6 +41,13 @@ export default function connectToInbox() {
     const emails = [];
     let totalToParse = 0;
     let parsedCount = 0;
+    const month = `February`;
+    const date = `1`;
+    const year = `2025`;
+
+    console.log(`📅 Scanning emails starting from: ${month} ${date}, ${year}...`);
+
+
 
     // .then(() => cleanFolder('[Gmail]/Trash', 'Trash'))
 
@@ -94,9 +101,6 @@ export default function connectToInbox() {
         });
       }
 
-      const month = `february`;
-      const date = `20`;
-      const year = `2025`;
 
       function openInbox() {
         imap.openBox('INBOX', false, (err, box) => {
