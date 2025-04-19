@@ -41,8 +41,8 @@ export default function connectToInbox() {
     const emails = [];
     let totalToParse = 0;
     let parsedCount = 0;
-    const month = `February`;
-    const date = `1`;
+    const month = `January`;
+    const date = `30`;
     const year = `2025`;
 
     console.log(`📅 Scanning emails starting from: ${month} ${date}, ${year}...`);
