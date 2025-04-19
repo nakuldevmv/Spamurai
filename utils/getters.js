@@ -1,14 +1,22 @@
+import { response } from 'express';
 import psl from 'psl';
+import readline from 'readline';
+
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+
+})
 
 export function getMail(email) {
-    let mail = email.slice(email.indexOf('<') + 1, email.indexOf('>')).trim();
-    return mail;
+    // let mail = email.toString().slice(email.indexOf('<') + 1, email.indexOf('>')).trim();
+    return email.value[0].address;
 }
 
 export function getName(email) {
-    let name = email.slice(1, email.indexOf('<')).trim();
-    name = name.slice(0, name.length - 1);
-    return name;
+    // let name = email.slice(1, email.indexOf('<')).trim();
+    // name = name.slice(0, name.length - 1);
+    return email.value[0].name;
 }
 
 export function getDomain(link) {
@@ -22,4 +30,19 @@ export function getdate() {
     const formattedDate = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
     return formattedDate;
 
+}
+
+
+export async function getInput(msg) {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+    });
+
+    return new Promise((resolve) => {
+        rl.question(msg, (answer) => {
+            rl.close();
+            resolve(answer.trim());
+        });
+    });
 }
