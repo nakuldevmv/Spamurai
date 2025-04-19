@@ -94,7 +94,9 @@ export default function connectToInbox() {
         });
       }
 
-
+      const month = `february`;
+      const date = `20`;
+      const year = `2025`;
 
       function openInbox() {
         imap.openBox('INBOX', false, (err, box) => {
@@ -103,7 +105,7 @@ export default function connectToInbox() {
           console.log(`📨  Total Inbox Messages : ${box.messages.total}`);
 
           // imap.search(['ALL'], (err, results) => {
-          imap.search([['SINCE', 'APRIL 4, 2025']], (err, results) => {
+          imap.search([[`SINCE`, `${month.toUpperCase()} ${date}, ${year}`]], (err, results) => {
             if (err) {
               console.log('🔴  Inbox Search Error:', err);
               return reject(err);
@@ -201,7 +203,7 @@ export default function connectToInbox() {
               }
             } else {
               const isSafe = await checkUrl(link);
-              if(isSafe){
+              if (isSafe) {
                 await unsuber(link);
               }
               const linkData = {
@@ -278,9 +280,10 @@ export default function connectToInbox() {
       }
 
       function finish() {
-        console.log(`📊 Total Links Found: ${totalLinks}`);
-        console.log('📦 DB connection closed.');
-        console.log('✅ Done & Dusted.');
+        console.log(`📊 Total Unsub Links Found: ${totalLinks}`);
+        // console.log('📦 Database disconnected.');
+        console.log('⚠️  If any UID shows up as "null", try rescanning. Could be a ghost email 👻');
+        console.log('✅ Scan complete.');
         imap.end();
         client.close();
         resolve();
