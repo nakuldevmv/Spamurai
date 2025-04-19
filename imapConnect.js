@@ -4,7 +4,9 @@ import dotenv from 'dotenv';
 import { findUnsubLinks } from './utils/unsub/findUnsubLinks.js';
 import checkUrl from './utils/urlChecker.js';
 import { MongoClient } from 'mongodb';
-import { getDomain, getMail, getName, getdate, getInput } from './utils/getters.js';
+import { getDomain, getMail, getName, getdate } from './utils/getters.js';
+import { getUserInput } from './utils/getUserInput.js';
+
 // import unsub from './unsub/unsubscriber.js';
 import unsuber from './utils/unsub/unsubscriber.js';
 
@@ -18,7 +20,7 @@ async function connectDB() {
   try {
     await client.connect();
     db = await client.db(process.env.DB_NAME);
-    console.log("🗃️  Connected to Spamurai's Database");
+    // console.log("🗃️  Connected to Spamurai's Database");
 
   } catch (err) {
     console.log(err);
@@ -101,7 +103,7 @@ export default function connectToInbox() {
           console.log(`📨  Total Inbox Messages : ${box.messages.total}`);
 
           // imap.search(['ALL'], (err, results) => {
-          imap.search([['SINCE', 'APRIL 5, 2025']], (err, results) => {
+          imap.search([['SINCE', 'APRIL 4, 2025']], (err, results) => {
             if (err) {
               console.log('🔴  Inbox Search Error:', err);
               return reject(err);
@@ -242,7 +244,7 @@ export default function connectToInbox() {
             } else {
               console.log("✅  Mails moved to trash folder!");
 
-              const input = await getInput("Do you want to delete the message in trash? (y/n)")
+              const input = await getUserInput("Do you want to delete the message in trash? (y/n)")
               if (input.toLowerCase() == 'y') {
                 imap.addFlags(uidToDelete, '\\Deleted', err => {
                   if (err) {

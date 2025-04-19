@@ -1,12 +1,5 @@
-import { response } from 'express';
 import psl from 'psl';
-import readline from 'readline';
 
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-
-})
 
 export function getMail(email) {
     // let mail = email.toString().slice(email.indexOf('<') + 1, email.indexOf('>')).trim();
@@ -32,17 +25,3 @@ export function getdate() {
 
 }
 
-
-export async function getInput(msg) {
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-    });
-
-    return new Promise((resolve) => {
-        rl.question(msg, (answer) => {
-            rl.close();
-            resolve(answer.trim());
-        });
-    });
-}
