@@ -13,10 +13,20 @@ export function getName(email) {
 }
 
 export function getDomain(link) {
-    let hostname = new URL(link).hostname;
-    const parsed = psl.parse(hostname);
-    return parsed.domain;
-}
+    try {
+      // Bail if link is empty, not a string, or doesn't even start with http
+      if (!link || typeof link !== 'string' || !link.startsWith('http')) {
+        throw new Error('Invalid link format');
+      }
+  
+      const hostname = new URL(link).hostname;
+      const parsed = psl.parse(hostname);
+      return parsed.domain || hostname;
+    } catch (err) {
+      console.log(`🚫 Skipping invalid URL in getDomain(): ${link}`);
+      return null;
+    }
+  }
 
 export function getdate() {
     const date = new Date();

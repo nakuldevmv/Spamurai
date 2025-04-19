@@ -41,11 +41,13 @@ export default function connectToInbox() {
     const emails = [];
     let totalToParse = 0;
     let parsedCount = 0;
-    const month = `January`;
-    const date = `30`;
-    const year = `2025`;
+    // const month = `January`;
+    // const date = `30`;
+    // const year = `2025`;
 
-    console.log(`📅 Scanning emails starting from: ${month} ${date}, ${year}...`);
+    // console.log(`📅 Scanning emails starting from: ${month} ${date}, ${year}...`);
+    console.log(`📅 Scanning ALL emails...`);
+
 
 
 
@@ -108,8 +110,8 @@ export default function connectToInbox() {
 
           console.log(`📨  Total Inbox Messages : ${box.messages.total}`);
 
-          // imap.search(['ALL'], (err, results) => {
-          imap.search([[`SINCE`, `${month.toUpperCase()} ${date}, ${year}`]], (err, results) => {
+          imap.search(['ALL'], (err, results) => {
+            // imap.search([[`SINCE`, `${month.toUpperCase()} ${date}, ${year}`]], (err, results) => {
             if (err) {
               console.log('🔴  Inbox Search Error:', err);
               return reject(err);
