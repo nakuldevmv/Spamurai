@@ -174,11 +174,21 @@ export default function connectToInbox() {
       }
     });
 
+    // imap.once('error', (err) => {
+    //   console.log('🔴  IMAP Error ::', err);
+    //   reject(err);
+    // });
     imap.once('error', (err) => {
       console.log('🔴  IMAP Error ::', err);
-      reject(err);
+    
+      if (err.code === 'ECONNRESET') {
+        console.log('⚠️  Connection reset — salvaging scanned emails...');
+        processParsedEmails(); // gracefully wrap it up with what we've got
+      } else {
+        reject(err); // only kill if it's something else
+      }
     });
-
+    
     async function processParsedEmails() {
       let totalLinks = 0;
       let uidToDelete = [];
