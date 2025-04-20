@@ -7,4 +7,4 @@
 
 Stay tuned as we slice through spam and refine the code!
 
-TODO: Need to improve Unsub Link detecton
+TODO: Need to improve Unsub Link detecton, link safety check
