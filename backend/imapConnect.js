@@ -39,13 +39,20 @@ const imap = new Imap({
 
 export default function connectToInbox() {
   return new Promise((resolve, reject) => {
+    const start = Date.now();
+
+    let emailsScanned=0;
+    let safeLinkCount=0;
+    let unsafeLinkCount=0;
+    let unsubCount=0;
+
     const emails = [];
     let totalToParse = 0;
     let parsedCount = 0;
-    const month = `December`;
-    const date = `29`;
+    const month = `october`;
+    const date = `20`;
     const year = `2024`;
-
+    console.log(" ")
     console.log(`📅 Scanning emails starting from: ${month} ${date}, ${year}...`);
     // console.log(`📅 Scanning ALL emails...`);
 
@@ -101,6 +108,7 @@ export default function connectToInbox() {
               });
             });
           });
+          console.log(" ")
         });
       }
 
@@ -110,6 +118,7 @@ export default function connectToInbox() {
           if (err) return reject(err);
 
           console.log(`📨  Total Inbox Messages : ${box.messages.total}`);
+          console.log(" ")
 
           // imap.search(['ALL'], (err, results) => {
           imap.search([[`SINCE`, `${month.toUpperCase()} ${date}, ${year}`]], (err, results) => {
@@ -175,10 +184,6 @@ export default function connectToInbox() {
       }
     });
 
-    // imap.once('error', (err) => {
-    //   console.log('🔴  IMAP Error ::', err);
-    //   reject(err);
-    // });
     imap.once('error', (err) => {
       console.log('🔴  IMAP Error ::', err);
 
@@ -195,32 +200,37 @@ export default function connectToInbox() {
       let uidToDelete = [];
 
       for (const mail of emails) {
+        
         const unsubLinks = await findUnsubLinks(mail.mail);
 
         if (unsubLinks.length > 0) {
           uidToDelete.push(mail.uid);
 
-          console.log('..................................................');
+          console.log('▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄');
+          console.log(" ")
           console.log('🆔  Message UID : ', mail.uid);
           console.log('👤  Sender Name : ', getName(mail.from));
           console.log('📧  Sender E-mail : ', getMail(mail.from));
           console.log('📝  Subject : ', `${mail.subject}...`);
+          console.log(" ")
+
           for (const link of unsubLinks) {
-            const domain = getDomain(link); // Cache that bad boi
-          
+            const domain = getDomain(link);
+
             let scannedLink = await db.collection(collection).findOne({ domain });
-            let unsubedLink = await db.collection(collection2).findOne({
-              userMail: process.env.EMAIL,
-              domain,
-            });
-          
+            let unsubedLink = await db.collection(collection2).findOne({ userMail: process.env.EMAIL, domain });
+
             if (scannedLink) {
               if (scannedLink.isSafe) {
+                safeLinkCount++;
                 console.log("✅  Link is Safe and already scanned — Unsubscribing...");
                 if (unsubedLink) {
                   console.log("✅  Already Unsubscribed the link!");
                 } else {
-                  await unsuber(link);
+                  let isSuccessful = await unsuber(link);
+                  if (isSuccessful) {
+                    unsubCount++;
+                  }
                   const unsubedData = {
                     date: getdate(),
                     userMail: process.env.EMAIL,
@@ -238,11 +248,17 @@ export default function connectToInbox() {
                   }
                 }
               } else {
+                unsafeLinkCount++;
                 console.log("⚠️  Link is Unsafe and already scanned — skipping...");
               }
             } else {
               const isSafe = await checkUrl(link);
-          
+              if (isSafe) {
+                safeLinkCount++;
+              }else{
+                unsafeLinkCount++;
+              }
+
               const linkData = {
                 date: getdate(),
                 sender_mail: getMail(mail.from),
@@ -251,7 +267,7 @@ export default function connectToInbox() {
                 link,
                 isSafe,
               };
-          
+
               try {
                 await db.collection(process.env.DB_COLLECTION).insertOne(linkData);
               } catch (err) {
@@ -261,9 +277,12 @@ export default function connectToInbox() {
                   console.log("🔴  MongoDB Error :: ", err);
                 }
               }
-          
+
               if (isSafe) {
-                await unsuber(link);
+               isSuccessful = await unsuber(link);
+               if (isSuccessful) {
+                unsubCount++;
+              }
                 const unsubedData = {
                   date: getdate(),
                   userMail: process.env.EMAIL,
@@ -281,77 +300,17 @@ export default function connectToInbox() {
                 }
               }
             }
-          
+
             totalLinks++;
           }
-          
-          // for (const link of unsubLinks) {
-          //   const Ldomain = getDomain(link); 
-          //   let scannedLink = await db.collection(collection).findOne({ domain: getDomain(link) });
-          //   let unsubedLink = await db.collection(collection2).findOne({ userMail: process.env.EMAIL, domain: getDomain(link) })
-
-          //   if (scannedLink) {
-          //     if (scannedLink.isSafe) {
-          //       console.log("✅  Link is Safe and already scanned — Unsubscribing...");
-          //       if (unsubedLink) {
-          //         console.log("✅  Already Unsubscribed the link!")
-          //       } else {
-          //         await unsuber(link);
-
-          //       }
-          //     } else if (!scannedLink.isSafe) {
-          //       console.log("⚠️  Link is Unsafe and already scanned — skipping...");
-          //     } else {
-          //       console.log("🔴  Link is not properly scanned yet");
-          //     }
-          //   } else {
-          //     const isSafe = await checkUrl(link);
-          //     if (isSafe) {
-          //       await unsuber(link);
-          //       const UnsubedData = {
-          //         date: getdate(),
-          //         userMail: process.env.EMAIL,
-          //         domain: Ldomain,
-          //         link: link,
-          //       };
-          //       try {
-          //         await db.collection(collection2).insertOne(UnsubedData)
-          //       } catch (err) {
-          //         if (err?.errorResponse?.code === 11000) {
-          //           console.log("⚠️  Duplicate entry found! Ignoring...");
-          //         } else {
-          //           console.log("🔴  MongoDB Error :: ", err);
-          //         }
-          //       }
-          //     }
-          //     const linkData = {
-          //       date: getdate(),
-          //       sender_mail: getMail(mail.from),
-          //       sender_name: getName(mail.from),
-          //       domain: Ldomain,
-          //       link: link,
-          //       isSafe: isSafe,
-          //     };
-
-          //     try {
-          //       await db.collection(process.env.DB_COLLECTION).insertOne(linkData);
-
-
-          //     } catch (err) {
-          //       if (err?.errorResponse?.code === 11000) {
-          //         console.log("⚠️  Duplicate entry found! Ignoring...");
-          //       } else {
-          //         console.log("🔴  MongoDB Error :: ", err);
-          //       }
-          //     }
-          //   }
-
-          //   totalLinks++;
-          // }
+          console.log(" ")
         }
+        emailsScanned++;
       }
       uidToDelete = uidToDelete.filter(item => item !== null);
       if (uidToDelete.length > 0) {
+        console.log('▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄');
+        console.log(" ")
         console.log('🚩  Message UIDs for moving to trash folder:', uidToDelete);
         console.log('📩  Moving mails to trash folder...');
         imap.delFlags(uidToDelete, ['\\Seen', '\\Flagged', '\\Answered', '\\Draft', '\\Recent'], (err) => {
@@ -366,7 +325,7 @@ export default function connectToInbox() {
             } else {
               console.log("✅  Mails moved to trash folder!");
 
-              const input = await getUserInput("Do you want to delete the message in trash? (y/n)")
+              const input = await getUserInput("🚨  Do you want to delete the message in trash? (y/n) : ")
               if (input.toLowerCase() == 'y') {
                 imap.addFlags(uidToDelete, '\\Deleted', err => {
                   if (err) {
@@ -377,13 +336,15 @@ export default function connectToInbox() {
                     if (err) {
                       console.error('🔴 Expunge error:', err);
                     } else {
-                      console.log('🗑️ Mails successfully deleted!');
+                      console.log(" ")
+                      console.log('🗑️  Mails successfully deleted!');
                     }
                     finish();
                   });
                 });
               } else {
-                console.log("The messages are in the trash if you want to manually check each of them")
+                console.log(" ")
+                console.log("🗑️ The messages have been moved to Trash! Feel free to dig in if you wanna manually inspect each one 🕵️‍♂️📬");
                 finish();
               }
             }
@@ -394,21 +355,39 @@ export default function connectToInbox() {
 
 
       } else {
-
-        console.log('ℹ️ No mails flagged for deletion.');
+        console.log(" ")
+        console.log('ℹ️  No mails flagged for deletion.');
         finish();
       }
 
+      
       function finish() {
-        console.log(`📊 Total Unsub Links Found: ${totalLinks}`);
-        // console.log('📦 Database disconnected.');
-        console.log('⚠️  If any UID shows up as "null", try rescanning. Could be a ghost email 👻');
-        console.log('✅ Scan complete.');
+        const duration = ((Date.now() - start) / 1000).toFixed(2);
+      
+        console.log("\n");
+        console.log("📬  Spamurai Scan Finished - Report Time ⚔️");
+        console.log("=============================================");
+        console.log(`📨  Emails Scanned:            ${emailsScanned}`);
+        console.log(`🔗  Total Unsub Links Found:   ${totalLinks}`);
+        console.log(`🛡️  Safe Links:                ${safeLinkCount}`);
+        console.log(`☠️  Unsafe Links:              ${unsafeLinkCount}`);
+        console.log(`✅  Successful Unsubscribes:   ${unsubCount}`);
+        console.log(`⏱️  Total Scan Duration:       ${duration} seconds`);
+        console.log("=============================================\n");
+      
+        console.log("❗  Note:");
+        console.log(`🗑️  Messages moved to Trash if unsafe or errored out.  Manual check optional 👀`);
+        console.log(`⚠️  If any UID shows up as "null", try rescanning.  Could be a ghost email 👻`);
+        console.log("\n");
+      
+        console.log("✅  Scan complete.  Spamurai bows and logs off... for now 🥷\n");
+      
         imap.end();
         client.close();
         resolve();
-        process.exit(0) //kill the program
+        process.exit(0); // yeet the process
       }
+      
     }
 
     imap.connect();
