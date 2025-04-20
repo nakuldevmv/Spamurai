@@ -16,6 +16,7 @@ const uri = `mongodb+srv://${process.env.DB_USERNAME}:${encodeURIComponent(proce
 const client = new MongoClient(uri);
 let db;
 let collection = process.env.DB_COLLECTION;
+let collection2 = process.env.DB_COLLECTION2;
 async function connectDB() {
   try {
     await client.connect();
@@ -41,12 +42,12 @@ export default function connectToInbox() {
     const emails = [];
     let totalToParse = 0;
     let parsedCount = 0;
-    // const month = `January`;
-    // const date = `30`;
-    // const year = `2025`;
+    const month = `December`;
+    const date = `29`;
+    const year = `2024`;
 
-    // console.log(`📅 Scanning emails starting from: ${month} ${date}, ${year}...`);
-    console.log(`📅 Scanning ALL emails...`);
+    console.log(`📅 Scanning emails starting from: ${month} ${date}, ${year}...`);
+    // console.log(`📅 Scanning ALL emails...`);
 
 
 
@@ -110,8 +111,8 @@ export default function connectToInbox() {
 
           console.log(`📨  Total Inbox Messages : ${box.messages.total}`);
 
-          imap.search(['ALL'], (err, results) => {
-            // imap.search([[`SINCE`, `${month.toUpperCase()} ${date}, ${year}`]], (err, results) => {
+          // imap.search(['ALL'], (err, results) => {
+          imap.search([[`SINCE`, `${month.toUpperCase()} ${date}, ${year}`]], (err, results) => {
             if (err) {
               console.log('🔴  Inbox Search Error:', err);
               return reject(err);
@@ -180,7 +181,7 @@ export default function connectToInbox() {
     // });
     imap.once('error', (err) => {
       console.log('🔴  IMAP Error ::', err);
-    
+
       if (err.code === 'ECONNRESET') {
         console.log('⚠️  Connection reset — salvaging scanned emails...');
         processParsedEmails(); // gracefully wrap it up with what we've got
@@ -188,7 +189,7 @@ export default function connectToInbox() {
         reject(err); // only kill if it's something else
       }
     });
-    
+
     async function processParsedEmails() {
       let totalLinks = 0;
       let uidToDelete = [];
@@ -204,33 +205,53 @@ export default function connectToInbox() {
           console.log('👤  Sender Name : ', getName(mail.from));
           console.log('📧  Sender E-mail : ', getMail(mail.from));
           console.log('📝  Subject : ', `${mail.subject}...`);
-
           for (const link of unsubLinks) {
-            let scannedLink = await db.collection(collection).findOne({ domain: getDomain(link) });
-
+            const domain = getDomain(link); // Cache that bad boi
+          
+            let scannedLink = await db.collection(collection).findOne({ domain });
+            let unsubedLink = await db.collection(collection2).findOne({
+              userMail: process.env.EMAIL,
+              domain,
+            });
+          
             if (scannedLink) {
               if (scannedLink.isSafe) {
                 console.log("✅  Link is Safe and already scanned — Unsubscribing...");
-                await unsuber(link);
-              } else if (!scannedLink.isSafe) {
-                console.log("⚠️  Link is Unsafe and already scanned — skipping...");
+                if (unsubedLink) {
+                  console.log("✅  Already Unsubscribed the link!");
+                } else {
+                  await unsuber(link);
+                  const unsubedData = {
+                    date: getdate(),
+                    userMail: process.env.EMAIL,
+                    domain,
+                    link,
+                  };
+                  try {
+                    await db.collection(collection2).insertOne(unsubedData);
+                  } catch (err) {
+                    if (err?.errorResponse?.code === 11000) {
+                      console.log("⚠️  Duplicate entry found! Ignoring...");
+                    } else {
+                      console.log("🔴  MongoDB Error :: ", err);
+                    }
+                  }
+                }
               } else {
-                console.log("🔴  Link is not properly scanned yet");
+                console.log("⚠️  Link is Unsafe and already scanned — skipping...");
               }
             } else {
               const isSafe = await checkUrl(link);
-              if (isSafe) {
-                await unsuber(link);
-              }
+          
               const linkData = {
                 date: getdate(),
                 sender_mail: getMail(mail.from),
                 sender_name: getName(mail.from),
-                domain: getDomain(link),
-                link: link,
-                isSafe: isSafe,
+                domain,
+                link,
+                isSafe,
               };
-
+          
               try {
                 await db.collection(process.env.DB_COLLECTION).insertOne(linkData);
               } catch (err) {
@@ -240,10 +261,93 @@ export default function connectToInbox() {
                   console.log("🔴  MongoDB Error :: ", err);
                 }
               }
+          
+              if (isSafe) {
+                await unsuber(link);
+                const unsubedData = {
+                  date: getdate(),
+                  userMail: process.env.EMAIL,
+                  domain,
+                  link,
+                };
+                try {
+                  await db.collection(collection2).insertOne(unsubedData);
+                } catch (err) {
+                  if (err?.errorResponse?.code === 11000) {
+                    console.log("⚠️  Duplicate entry found! Ignoring...");
+                  } else {
+                    console.log("🔴  MongoDB Error :: ", err);
+                  }
+                }
+              }
             }
-
+          
             totalLinks++;
           }
+          
+          // for (const link of unsubLinks) {
+          //   const Ldomain = getDomain(link); 
+          //   let scannedLink = await db.collection(collection).findOne({ domain: getDomain(link) });
+          //   let unsubedLink = await db.collection(collection2).findOne({ userMail: process.env.EMAIL, domain: getDomain(link) })
+
+          //   if (scannedLink) {
+          //     if (scannedLink.isSafe) {
+          //       console.log("✅  Link is Safe and already scanned — Unsubscribing...");
+          //       if (unsubedLink) {
+          //         console.log("✅  Already Unsubscribed the link!")
+          //       } else {
+          //         await unsuber(link);
+
+          //       }
+          //     } else if (!scannedLink.isSafe) {
+          //       console.log("⚠️  Link is Unsafe and already scanned — skipping...");
+          //     } else {
+          //       console.log("🔴  Link is not properly scanned yet");
+          //     }
+          //   } else {
+          //     const isSafe = await checkUrl(link);
+          //     if (isSafe) {
+          //       await unsuber(link);
+          //       const UnsubedData = {
+          //         date: getdate(),
+          //         userMail: process.env.EMAIL,
+          //         domain: Ldomain,
+          //         link: link,
+          //       };
+          //       try {
+          //         await db.collection(collection2).insertOne(UnsubedData)
+          //       } catch (err) {
+          //         if (err?.errorResponse?.code === 11000) {
+          //           console.log("⚠️  Duplicate entry found! Ignoring...");
+          //         } else {
+          //           console.log("🔴  MongoDB Error :: ", err);
+          //         }
+          //       }
+          //     }
+          //     const linkData = {
+          //       date: getdate(),
+          //       sender_mail: getMail(mail.from),
+          //       sender_name: getName(mail.from),
+          //       domain: Ldomain,
+          //       link: link,
+          //       isSafe: isSafe,
+          //     };
+
+          //     try {
+          //       await db.collection(process.env.DB_COLLECTION).insertOne(linkData);
+
+
+          //     } catch (err) {
+          //       if (err?.errorResponse?.code === 11000) {
+          //         console.log("⚠️  Duplicate entry found! Ignoring...");
+          //       } else {
+          //         console.log("🔴  MongoDB Error :: ", err);
+          //       }
+          //     }
+          //   }
+
+          //   totalLinks++;
+          // }
         }
       }
       uidToDelete = uidToDelete.filter(item => item !== null);
