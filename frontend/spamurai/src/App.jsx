@@ -1,10 +1,11 @@
-import GetUser from "./components/getUserDetails"
+import SpamuraiFrontend from "./components/abjith_test"
+// import GetUser from "./components/getUserDetails"
 
 function App() {
 
   return (
     <>
-    <GetUser></GetUser>
+    <SpamuraiFrontend></SpamuraiFrontend>
     </>
   )
 }

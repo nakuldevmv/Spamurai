@@ -7,7 +7,7 @@ export default async function checkUrl(url) {
   const ipqsData = await ipqs(url);
 
   if (ipqsData?.unsafe || ipqsData?.spamming || ipqsData?.malware || ipqsData?.phishing ||
-    ipqsData?.suspicious || ipqsData?.adult || ipqsData?.risky_tld || ipqsData?.risk_score >= 70) {
+    ipqsData?.suspicious || ipqsData?.adult || ipqsData?.risky_tld || ipqsData?.risk_score >= 80) {
       console.log("Link Status : Unsafe ⚠️");
       return false;
 
@@ -35,4 +35,4 @@ function normalizeDomain(domain) {
 }
 
 
-// checkUrl('https://pornhub.com');
+// checkUrl('https://www.geeksforgeeks.org/notifications/?%2FinYDYBj=smmES9431w%3D%3D&5CjUGIBp=uw%3D%3D&%2BD%2FPCYBkhEKILw%3D%3D=ug%3D%3D&%2ByjYGYx1hHOCLvr6ItY%3D=ummMINg00g%3D%3D&mode=unsubscribe');
