@@ -38,6 +38,7 @@ const imap = new Imap({
 });
 
 export default async function connectToInbox() {
+  console.log(" ")
 
   const month = await getUserInput("📅  Enter month (e.g. October): ");
   const date = await getUserInput("📆  Enter day   (e.g. 1): ");
@@ -354,7 +355,7 @@ export default async function connectToInbox() {
                 });
               } else {
                 console.log(" ")
-                console.log("🗑️ The messages have been moved to Trash! Feel free to dig in if you wanna manually inspect each one 🕵️‍♂️📬");
+                console.log("🗑️  The messages have been moved to Trash! Feel free to dig in if you wanna manually inspect each one 🕵️‍♂️📬");
                 finish();
               }
             }
