@@ -37,7 +37,14 @@ const imap = new Imap({
   tls: true,
 });
 
-export default function connectToInbox() {
+export default async function connectToInbox() {
+
+  const month = await getUserInput("📅  Enter month (e.g. October): ");
+  const date  = await getUserInput("📆  Enter day   (e.g. 1): ");
+  const year  = await getUserInput("🗓️  Enter year  (e.g. 2025): ");
+
+  console.log(`\n📅 Scanning emails starting from: ${month} ${date}, ${year}...\n`);
+
   return new Promise((resolve, reject) => {
     const start = Date.now();
 
@@ -49,15 +56,6 @@ export default function connectToInbox() {
     const emails = [];
     let totalToParse = 0;
     let parsedCount = 0;
-    const month = `october`;
-    const date = `1`;
-    const year = `2024`;
-    console.log(" ")
-    console.log(`📅 Scanning emails starting from: ${month} ${date}, ${year}...`);
-    // console.log(`📅 Scanning ALL emails...`);
-
-
-
 
     // .then(() => cleanFolder('[Gmail]/Trash', 'Trash'))
 
