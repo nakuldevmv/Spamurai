@@ -40,18 +40,23 @@ const imap = new Imap({
 export default async function connectToInbox() {
 
   const month = await getUserInput("📅  Enter month (e.g. October): ");
-  const date  = await getUserInput("📆  Enter day   (e.g. 1): ");
-  const year  = await getUserInput("🗓️  Enter year  (e.g. 2025): ");
+  const date = await getUserInput("📆  Enter day   (e.g. 1): ");
+  const year = await getUserInput("🗓️  Enter year  (e.g. 2025): ");
+  console.log(`\n🧠  Pro tip: Want to scan your whole inbox? Just enter your birthday as the date 😎`);
+
+  console.log(`⚠️  Full scans can take a long time—like, seriously long, depending on your inbox 🕰️`);
+  console.log(`🙏  So yeah... be patient. A lot of patience. Like, monk-level patience 🧘‍♂️\n`);
+
 
   console.log(`\n📅 Scanning emails starting from: ${month} ${date}, ${year}...\n`);
 
   return new Promise((resolve, reject) => {
     const start = Date.now();
 
-    let emailsScanned=0;
-    let safeLinkCount=0;
-    let unsafeLinkCount=0;
-    let unsubCount=0;
+    let emailsScanned = 0;
+    let safeLinkCount = 0;
+    let unsafeLinkCount = 0;
+    let unsubCount = 0;
 
     const emails = [];
     let totalToParse = 0;
@@ -119,65 +124,72 @@ export default async function connectToInbox() {
           console.log(" ")
 
           // imap.search(['ALL'], (err, results) => {
-          imap.search([[`SINCE`, `${month.toUpperCase()} ${date}, ${year}`]], (err, results) => {
-            if (err) {
-              console.log('🔴  Inbox Search Error:', err);
-              return reject(err);
-            }
-
-            if (!results.length) {
-              console.log('📭  No recent emails found.');
-              finish();
-              return resolve();
-            }
-
-            totalToParse = results.length;
-            const fetch = imap.fetch(results, { bodies: '' });
-
-            fetch.on('message', (msg) => {
-              let isImportant = false;
-              let isFlagged = false;
-              let attrs = null;
-              let uid = null;
-
-              msg.on('attributes', (attributes) => {
-                attrs = attributes;
-                uid = attrs.uid;
-                const labels = attrs['x-gm-labels'] || [];
-                const flags = attrs.flags || [];
-
-                isImportant = labels.includes('\\Important');
-                isFlagged = flags.includes('\\Flagged');
-              });
-
-              msg.on('body', (stream) => {
-                simpleParser(stream, async (err, mail) => {
-                  if (err) {
-                    console.log('🔴  Parse Error :: ', err);
-                  } else {
-                    if (!isImportant && !isFlagged) {
-
-                      emails.push({
-                        uid,
-                        from: mail.from,
-                        subject: mail.subject,
-                        mail
-                      });
-
+          
+          try {
+            imap.search([[`SINCE`, `${month.toUpperCase()} ${date}, ${year}`]], (err, results) => {
+              if (err) {
+                console.log('🔴  Inbox Search Error:', err);
+                return reject(err);
+              }
+  
+              if (!results.length) {
+                console.log('📭  No recent emails found.');
+                finish();
+                return resolve();
+              }
+  
+              totalToParse = results.length;
+              const fetch = imap.fetch(results, { bodies: '' });
+  
+              fetch.on('message', (msg) => {
+                let isImportant = false;
+                let isFlagged = false;
+                let attrs = null;
+                let uid = null;
+  
+                msg.on('attributes', (attributes) => {
+                  attrs = attributes;
+                  uid = attrs.uid;
+                  const labels = attrs['x-gm-labels'] || [];
+                  const flags = attrs.flags || [];
+  
+                  isImportant = labels.includes('\\Important');
+                  isFlagged = flags.includes('\\Flagged');
+                });
+  
+                msg.on('body', (stream) => {
+                  simpleParser(stream, async (err, mail) => {
+                    if (err) {
+                      console.log('🔴  Parse Error :: ', err);
                     } else {
-                      console.log(`🔶  Skipped important or flagged: ${mail.subject}`);
+                      if (!isImportant && !isFlagged) {
+  
+                        emails.push({
+                          uid,
+                          from: mail.from,
+                          subject: mail.subject,
+                          mail
+                        });
+  
+                      } else {
+                        console.log(`🔶  Skipped important or flagged: ${mail.subject}`);
+                      }
+  
                     }
-
-                  }
-
-                  parsedCount++;
-                  if (parsedCount === totalToParse) {
-                    processParsedEmails()
-                  }
+  
+                    parsedCount++;
+                    if (parsedCount === totalToParse) {
+                      processParsedEmails()
+                    }
+                  });
                 });
               });
             });
-          });
+          } catch (err) {
+            console.log("🔴  Inbox Search Error :: ",err.message);
+            process.exit(0); 
+
+          }
         });
       }
     });
@@ -198,7 +210,7 @@ export default async function connectToInbox() {
       let uidToDelete = [];
 
       for (const mail of emails) {
-        
+
         const unsubLinks = await findUnsubLinks(mail.mail);
 
         if (unsubLinks.length > 0) {
@@ -253,7 +265,7 @@ export default async function connectToInbox() {
               const isSafe = await checkUrl(link);
               if (isSafe) {
                 safeLinkCount++;
-              }else{
+              } else {
                 unsafeLinkCount++;
               }
 
@@ -277,10 +289,10 @@ export default async function connectToInbox() {
               }
 
               if (isSafe) {
-               isSuccessful = await unsuber(link);
-               if (isSuccessful) {
-                unsubCount++;
-              }
+                isSuccessful = await unsuber(link);
+                if (isSuccessful) {
+                  unsubCount++;
+                }
                 const unsubedData = {
                   date: getdate(),
                   userMail: process.env.EMAIL,
@@ -358,10 +370,10 @@ export default async function connectToInbox() {
         finish();
       }
 
-      
+
       function finish() {
         const duration = ((Date.now() - start) / 1000).toFixed(2);
-      
+
         console.log("\n");
         console.log("📬  Spamurai Scan Finished - Report Time ⚔️");
         console.log("=============================================");
@@ -372,20 +384,20 @@ export default async function connectToInbox() {
         console.log(`✅  Successful Unsubscribes:   ${unsubCount}`);
         console.log(`⏱️  Total Scan Duration:       ${duration} seconds`);
         console.log("=============================================\n");
-      
+
         console.log("❗  Note:");
         console.log(`🗑️  Messages moved to Trash if unsafe or errored out.  Manual check optional 👀`);
         console.log(`⚠️  If any UID shows up as "null", try rescanning.  Could be a ghost email 👻`);
         console.log("\n");
-      
+
         console.log("✅  Scan complete.  Spamurai bows and logs off... for now 🥷\n");
-      
+
         imap.end();
         client.close();
         resolve();
         process.exit(0); // yeet the process
       }
-      
+
     }
 
     imap.connect();
