@@ -5,13 +5,13 @@ dotenv.config();
 
 
 const app = express();
+app.use(express.json());
 const PORT = 3000;
-const uri=`mongodb+srv://${process.env.DB_USERNAME}:${encodeURIComponent(process.env.DB_PASSWORD)}@${process.env.CLUSTER}`;
+const uri=`mongodb://localhost:27017/`;
 const client = new MongoClient(uri);
 let db;
 
 app.use(express.json());
-
 export default async function connectDB(){
     try {
         await client.connect();
@@ -30,8 +30,11 @@ app.post('/link',async(req, res)=>{
         const result = await db.collection(process.env.DB_COLLECTION).insertOne(link);
         res.status(201).send(result);
     } catch (err) {
-        console.log('Error in POST:: ',err);
+        console.log('Error in POST:: ',err.message);
         res.status(500).send({ error: "Internal Server Error" });
+        console.log(process.env.DB_COLLECTION);
+        console.log(process.env.DB_NAME);
+
 
     }
 });
@@ -45,16 +48,20 @@ app.get('/link', async (req, res)=>{
         const link = await db.collection(process.env.DB_COLLECTION).find().toArray();
         res.status(200).send(link);
     } catch (err) {
-        console.log('Error in GET:: ',err);
+        console.log('Error in GET:: ',err.message);
         res.status(500).send({ error: "Internal Server Error" });
+        console.log(process.env.DB_COLLECTION)
+
 
     }
 });
 
-app.listen(PORT,()=>{
-    console.log(`Server is running at :: http://localhost:${PORT}`);
-});
-
+connectDB().then(()=>{
+    app.listen(PORT,()=>{
+        console.log(`Server is running at :: http://localhost:${PORT}`);
+    });
+    
+}) 
 process.on('SIGINT', async () => {
     await client.close();
     console.log("MongoDB connection closed.");
