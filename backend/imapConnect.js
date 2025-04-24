@@ -58,6 +58,7 @@ export default async function connectToInbox() {
     let safeLinkCount = 0;
     let unsafeLinkCount = 0;
     let unsubCount = 0;
+    let isSuccessful;
 
     const emails = [];
     let totalToParse = 0;
@@ -238,7 +239,7 @@ export default async function connectToInbox() {
                 if (unsubedLink) {
                   console.log("✅  Already Unsubscribed the link!");
                 } else {
-                  let isSuccessful = await unsuber(link);
+                  isSuccessful = await unsuber(link);
                   if (isSuccessful) {
                     unsubCount++;
                   }
