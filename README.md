@@ -107,7 +107,7 @@ npm start        # or node index.js
 
 ## 7. 🗺️ Roadmap
 
-- [ ] Smarter unsubscribe link detection (HTML edge cases)  
+- [x] Smarter unsubscribe link detection   
 - [x] Advanced link‑safety heuristics & fallbacks  
 - [ ] OAuth2 support for Gmail (drop app passwords)  
 - [ ] React + Vite dashboard for real‑time monitoring  
