@@ -28,6 +28,7 @@
     <div id="logs"></div>
 
     <script>
+        
         const logsDiv = document.getElementById('logs');
         const ws = new WebSocket('ws://localhost:3000');
 
@@ -42,6 +43,12 @@
             logsDiv.appendChild(logElement);
             logsDiv.scrollTop = logsDiv.scrollHeight;
         };
+        // document.body.addEventListener('click', () => {
+        //     const payload = { type: 'PING', timestamp: Date.now() };
+        //     ws.send(JSON.stringify(payload));
+        //     console.log('➡️ Sent to server:', payload);
+        // });
+
 
     </script>
 </body>

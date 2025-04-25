@@ -5,8 +5,8 @@
   "description": "Email processing system with real-time WebSocket logging",
   "main": "start.js",
   "scripts": {
-    "start": "node start.js",
-    "dev": "nodemon start.js",
+    "start": "node index.js",
+    "dev": "nodemon index.js",
     "test": "jest"
   },
   "dependencies": {

@@ -7,7 +7,6 @@ import { MongoClient } from 'mongodb';
 import { getDomain, getMail, getName, getdate } from '../getters.js';
 import { getUserInput } from '../getUserInput.js';
 
-// import unsub from './unsub/unsubscriber.js';
 import unsuber from '../unsub/unsubscriber.js';
 
 dotenv.config();
