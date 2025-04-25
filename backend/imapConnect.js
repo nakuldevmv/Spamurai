@@ -63,9 +63,10 @@ export default async function connectToInbox() {
     const emails = [];
     let totalToParse = 0;
     let parsedCount = 0;
+    
 
     // .then(() => cleanFolder('[Gmail]/Trash', 'Trash'))
-
+    
     imap.once('ready', () => {
       cleanFolder('[Gmail]/Spam', 'Spam')
         .then(() => openInbox())
