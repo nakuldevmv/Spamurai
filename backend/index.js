@@ -76,5 +76,6 @@ const day="1";
 const year="2024";
 const isDelete=true;
 const isAgree=true;
+
 // 5. Start your app
 startSpamurai(month ,day, year,isAgree, isDelete);
