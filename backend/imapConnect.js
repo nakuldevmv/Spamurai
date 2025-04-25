@@ -65,7 +65,6 @@ export default async function connectToInbox() {
     let parsedCount = 0;
     
 
-    // .then(() => cleanFolder('[Gmail]/Trash', 'Trash'))
     
     imap.once('ready', () => {
       cleanFolder('[Gmail]/Spam', 'Spam')
@@ -126,7 +125,6 @@ export default async function connectToInbox() {
           console.log(`📨  Total Inbox Messages : ${box.messages.total}`);
           console.log(" ")
 
-          // imap.search(['ALL'], (err, results) => {
           
           try {
             imap.search([[`SINCE`, `${month.toUpperCase()} ${date}, ${year}`]], (err, results) => {
@@ -202,9 +200,9 @@ export default async function connectToInbox() {
 
       if (err.code === 'ECONNRESET') {
         console.log('⚠️  Connection reset — salvaging scanned emails...');
-        processParsedEmails(); // gracefully wrap it up with what we've got
+        processParsedEmails(); 
       } else {
-        reject(err); // only kill if it's something else
+        reject(err); 
       }
     });
 
@@ -398,7 +396,7 @@ export default async function connectToInbox() {
         imap.end();
         client.close();
         resolve();
-        process.exit(0); // yeet the process
+        process.exit(0); 
       }
 
     }

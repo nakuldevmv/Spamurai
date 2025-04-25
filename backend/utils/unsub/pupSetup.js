@@ -20,7 +20,6 @@ export async function launchSecureBrowser() {
 
   const page = await browser.newPage();
 
-  // Hardcore security: deny sus requests
   await page.setRequestInterception(true);
   page.on('request', (req) => {
     const resourceType = req.resourceType();

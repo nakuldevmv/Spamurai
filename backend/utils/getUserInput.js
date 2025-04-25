@@ -8,7 +8,7 @@ export function getUserInput(prompt) {
     });
 
     rl.question(prompt, (answer) => {
-      rl.close(); // this avoids input duplication
+      rl.close();
       resolve(answer.trim());
     });
   });

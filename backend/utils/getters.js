@@ -14,7 +14,6 @@ export function getName(email) {
 
 export function getDomain(link) {
     try {
-      // Bail if link is empty, not a string, or doesn't even start with http
       if (!link || typeof link !== 'string' || !link.startsWith('http')) {
         throw new Error('Invalid link format');
       }
