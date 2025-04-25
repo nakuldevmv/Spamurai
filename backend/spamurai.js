@@ -1,7 +1,7 @@
 
 import readline from 'readline';
 import connectToInbox from './utils/connectMail/imapConnect.js';
-export default function startSpamurai() {
+export default function startSpamurai(month ,day, year, isAgree, isDelete) {
 
 
 
@@ -43,14 +43,21 @@ This is digital bushido, baby.
     output: process.stdout,
   });
 
-  rl.question("👉 Type 'yes' to continue: ", (answer) => {
-    if (answer.trim().toLowerCase() !== 'yes') {
-      console.log("❌ Execution aborted. No unsubscribe scrolls were touched. Stay safe, ronin.");
-      rl.close();
-      process.exit(0);
-    }
+  // rl.question("👉 Type 'yes' to continue: ", (answer) => {
+  //   if (answer.trim().toLowerCase() !== 'yes') {
+  //     console.log("❌ Execution aborted. No unsubscribe scrolls were touched. Stay safe, ronin.");
+  //     rl.close();
+  //     process.exit(0);
+  //   }
 
-    rl.close();
-    connectToInbox();
-  });
+  //   rl.close();
+  if(isAgree){
+    connectToInbox(month ,day, year, isDelete);
+
+  }else{
+    console.log("❌ Execution aborted. No unsubscribe scrolls were touched. Stay safe, ronin.");
+    process.exit(0);
+    
+  }
+  // });
 }

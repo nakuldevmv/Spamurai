@@ -71,5 +71,10 @@ wss.on("connection", (ws) => {
 
 app.use(express.static("public"));
 
+const month="1";
+const day="1";
+const year="2025";
+const isDelete=false;
+const isAgree=true;
 // 5. Start your app
-startSpamurai();
+startSpamurai(month ,day, year,isAgree, isDelete);

@@ -36,12 +36,15 @@ const imap = new Imap({
   tls: true,
 });
 
-export default async function connectToInbox() {
+export default async function connectToInbox(m, d, y, isDelete) {
   console.log(" ")
 
-  const month = await getUserInput("📅  Enter month (e.g. October): ");
-  const date = await getUserInput("📆  Enter day   (e.g. 1): ");
-  const year = await getUserInput("🗓️  Enter year  (e.g. 2025): ");
+  // const month = await getUserInput("📅  Enter month (e.g. October): ");
+  // const date = await getUserInput("📆  Enter day   (e.g. 1): ");
+  // const year = await getUserInput("🗓️  Enter year  (e.g. 2025): ");
+  const month = m;
+  const date = d;
+  const year = y;
   console.log(`\n🧠  Pro tip: Want to scan your whole inbox? Just enter your birthday as the date 😎`);
 
   console.log(`⚠️  Full scans can take a long time—like, seriously long, depending on your inbox 🕰️`);
@@ -62,9 +65,9 @@ export default async function connectToInbox() {
     const emails = [];
     let totalToParse = 0;
     let parsedCount = 0;
-    
 
-    
+
+
     imap.once('ready', () => {
       cleanFolder('[Gmail]/Spam', 'Spam')
         .then(() => openInbox())
@@ -124,59 +127,59 @@ export default async function connectToInbox() {
           console.log(`📨  Total Inbox Messages : ${box.messages.total}`);
           console.log(" ")
 
-          
+
           try {
             imap.search([[`SINCE`, `${month.toUpperCase()} ${date}, ${year}`]], (err, results) => {
               if (err) {
                 console.log('🔴  Inbox Search Error:', err);
                 return reject(err);
               }
-  
+
               if (!results.length) {
                 console.log('📭  No recent emails found.');
                 finish();
                 return resolve();
               }
-  
+
               totalToParse = results.length;
               const fetch = imap.fetch(results, { bodies: '' });
-  
+
               fetch.on('message', (msg) => {
                 let isImportant = false;
                 let isFlagged = false;
                 let attrs = null;
                 let uid = null;
-  
+
                 msg.on('attributes', (attributes) => {
                   attrs = attributes;
                   uid = attrs.uid;
                   const labels = attrs['x-gm-labels'] || [];
                   const flags = attrs.flags || [];
-  
+
                   isImportant = labels.includes('\\Important');
                   isFlagged = flags.includes('\\Flagged');
                 });
-  
+
                 msg.on('body', (stream) => {
                   simpleParser(stream, async (err, mail) => {
                     if (err) {
                       console.log('🔴  Parse Error :: ', err);
                     } else {
                       if (!isImportant && !isFlagged) {
-  
+
                         emails.push({
                           uid,
                           from: mail.from,
                           subject: mail.subject,
                           mail
                         });
-  
+
                       } else {
                         console.log(`🔶  Skipped important or flagged: ${mail.subject}`);
                       }
-  
+
                     }
-  
+
                     parsedCount++;
                     if (parsedCount === totalToParse) {
                       processParsedEmails()
@@ -186,8 +189,8 @@ export default async function connectToInbox() {
               });
             });
           } catch (err) {
-            console.log("🔴  Inbox Search Error :: ",err.message);
-            process.exit(0); 
+            console.log("🔴  Inbox Search Error :: ", err.message);
+            process.exit(0);
 
           }
         });
@@ -199,9 +202,9 @@ export default async function connectToInbox() {
 
       if (err.code === 'ECONNRESET') {
         console.log('⚠️  Connection reset — salvaging scanned emails...');
-        processParsedEmails(); 
+        processParsedEmails();
       } else {
-        reject(err); 
+        reject(err);
       }
     });
 
@@ -335,8 +338,10 @@ export default async function connectToInbox() {
             } else {
               console.log("✅  Mails moved to trash folder!");
 
-              const input = await getUserInput("🚨  Do you want to delete the message in trash? (y/n) : ")
-              if (input.toLowerCase() == 'y') {
+              // const input = await getUserInput("🚨  Do you want to delete the message in trash? (y/n) : ")
+              const input = isDelete;
+              // if (input.toLowerCase() == 'y') {
+              if(input){
                 imap.addFlags(uidToDelete, '\\Deleted', err => {
                   if (err) {
                     console.error('🔴 Error adding \\Deleted flags:', err);
@@ -395,7 +400,7 @@ export default async function connectToInbox() {
         imap.end();
         client.close();
         resolve();
-        process.exit(0); 
+        process.exit(0);
       }
 
     }
