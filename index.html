@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Real-time Logs</title>
+    <style>
+        body {
+            font-family: monospace;
+            margin: 20px;
+            background-color: black;
+            color: white;
+        }
+
+        #logs {
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .log {
+            padding: 5px;
+            border-bottom: 1px solid #14cb00;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Spamurai Logs</h1>
+    <div id="logs"></div>
+
+    <script>
+        const logsDiv = document.getElementById('logs');
+        const ws = new WebSocket('ws://localhost:3000');
+
+        ws.onmessage = (event) => {
+            const logData = JSON.parse(event.data);
+
+            const logElement = document.createElement('div');
+            logElement.className = 'log';
+
+            logElement.textContent = logData.join(' ');
+
+            logsDiv.appendChild(logElement);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        };
+
+    </script>
+</body>
+
+</html>

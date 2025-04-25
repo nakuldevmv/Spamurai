@@ -1,14 +1,14 @@
-import Imap from './node_modules/node-imap/lib/Connection.js';
+import Imap from 'node-imap';
 import { simpleParser } from 'mailparser';
 import dotenv from 'dotenv';
-import { findUnsubLinks } from './utils/unsub/findUnsubLinks.js';
-import checkUrl from './utils/urlChecker.js';
+import { findUnsubLinks } from '../unsub/findUnsubLinks.js';
+import checkUrl from '../urlChecker.js';
 import { MongoClient } from 'mongodb';
-import { getDomain, getMail, getName, getdate } from './utils/getters.js';
-import { getUserInput } from './utils/getUserInput.js';
+import { getDomain, getMail, getName, getdate } from '../getters.js';
+import { getUserInput } from '../getUserInput.js';
 
 // import unsub from './unsub/unsubscriber.js';
-import unsuber from './utils/unsub/unsubscriber.js';
+import unsuber from '../unsub/unsubscriber.js';
 
 dotenv.config();
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${encodeURIComponent(process.env.DB_PASSWORD)}@${process.env.CLUSTER}`;

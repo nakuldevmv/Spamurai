@@ -1,52 +1,58 @@
+import { WebSocketServer, WebSocket } from 'ws';
+import express from "express";
 
-import readline from 'readline';
-import connectToInbox from './imapConnect.js';
+// 1. First - Initialize console overrides immediately
+const originalConsole = {
+    log: console.log,
+    error: console.error,
+    warn: console.warn
+};
 
-console.clear();
-console.log(`
+function sendToClient(data) {
+    const message = JSON.stringify(data);
+    wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(message);
+        }
+    });
+}
 
-    ░▒▓███████▓▒░▒▓███████▓▒░ ░▒▓██████▓▒░░▒▓██████████████▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓███████▓▒░ ░▒▓██████▓▒░░▒▓█▓▒░ 
-    ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░ 
-    ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░ 
-     ░▒▓██████▓▒░░▒▓███████▓▒░░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓███████▓▒░░▒▓████████▓▒░▒▓█▓▒░ 
-           ░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░ 
-           ░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░ 
-    ░▒▓███████▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓██████▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░ 
-                                                                                                              
-                                                                                                              
+function consoleOverrides() {
+    console.log = (...args) => {
+        originalConsole.log(...args);
+        sendToClient(args);
+    };
+    console.error = (...args) => {
+        originalConsole.error(...args);
+        sendToClient(args);
+    };
+    console.warn = (...args) => {
+        originalConsole.warn(...args);
+        sendToClient(args);
+    };
+}
 
-Oi, inbox samurai. Ready to slice through spam like it's sashimi?
+// 2. Apply overrides BEFORE any other code runs
+consoleOverrides();
 
-You're about to unleash a script that:
-🔹 Cracks open your inbox like a fortune cookie
-🔹 Hunts down unsubscribe links like a bloodhound
-🔹 Auto-clicks ONLY the SAFE ones (no shady back-alley links, promise)
-🔹 Moves emails to the Trash like they never existed
-🔹 And if you say the magic word — deletes 'em. For good. No ctrl+Z. No resurrection.
-
-‼️ THIS IS IRREVERSIBLE.
-‼️ We ain't cowboys clickin' willy-nilly — every link gets checked, scanned, background-checked, kissed goodnight.
-
-📌 Reminder:
-Double-check your creds, say a lil' prayer to the email gods,
-and make sure you ain’t got grandma’s secret cookie recipe buried in Promotions.
-
-This ain’t Gmail filters.
-This is digital bushido, baby.
-`);
-
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
+// 3. Now import your main app (will use the overridden console)
+import startSpamurai from './spamurai.js';
+// 4. Set up server
+const app = express();
+const server = app.listen(3000, () => {
+    console.log("🔥 running at port 3000"); // This will be captured
 });
 
-rl.question("👉 Type 'yes' to continue: ", (answer) => {
-  if (answer.trim().toLowerCase() !== 'yes') {
-    console.log("❌ Execution aborted. No unsubscribe scrolls were touched. Stay safe, ronin.");
-    rl.close();
-    process.exit(0);
-  }
+const wss = new WebSocketServer({ server });
 
-  rl.close();
-  connectToInbox();
+wss.on("connection", (ws) => {
+    console.log('New Client Connected'); // This will be captured
+    ws.on('close', () => {
+        console.log("client disconnected"); // This will be captured
+    });
 });
+
+app.use(express.static("public"));
+
+// 5. Start your app
+startSpamurai();
