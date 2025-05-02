@@ -394,7 +394,6 @@ export default async function connectToInbox(m, d, y, isDelete) {
         console.log("=============================================\n");
 
         console.log("❗  Note:");
-        console.log(`🗑️  Messages moved to Trash if unsafe or errored out.  Manual check optional 👀`);
         console.log(`⚠️  If any UID shows up as "null", try rescanning.  Could be a ghost email 👻`);
         console.log("\n");
 
