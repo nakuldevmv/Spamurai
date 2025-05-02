@@ -34,6 +34,9 @@ const imap = new Imap({
   host: process.env.HOST,
   port: Number(process.env.PORT),
   tls: true,
+  connTimeout: 5000,    // 10 seconds
+  authTimeout: 5000,    // 10 seconds
+  tlsOptions: { rejectUnauthorized: false }
 });
 
 export default async function connectToInbox(m, d, y, isDelete) {

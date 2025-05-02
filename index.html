@@ -1,8 +1,7 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <title>Real-time Logs</title>
+    <title>Spamurai Control Center ⚔️</title>
     <style>
         body {
             font-family: monospace;
@@ -12,40 +11,118 @@
         }
 
         #logs {
-            max-height: 80vh;
+            max-height: 50vh;
             overflow-y: auto;
+            margin-bottom: 20px;
+            border: 1px solid #00ff99;
+            padding: 10px;
         }
 
         .log {
-            padding: 5px;
+            padding: 5px 0;
+            border-bottom: 1px dashed #444;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        input, button, label {
+            display: block;
+            margin: 5px 0;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #00ff99;
+            color: black;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #00cc7a;
         }
     </style>
 </head>
-
 <body>
-    <h1>Spamurai Logs</h1>
+    <h1>Spamurai Logs ⚔️</h1>
     <div id="logs"></div>
 
+    <h2>Summon Spamurai 🚀</h2>
+    <form id="spamuraiForm">
+        <label>Month:
+            <input type="text" id="month" placeholder="e.g., 10" required>
+        </label>
+        <label>Day:
+            <input type="text" id="day" placeholder="e.g., 1" required>
+        </label>
+        <label>Year:
+            <input type="text" id="year" placeholder="e.g., 2024" required>
+        </label>
+        <label>
+            <input type="checkbox" id="isAgree">
+            I Agree to Terms
+        </label>
+        <label>
+            <input type="checkbox" id="isDelete">
+            Delete Spam Emails
+        </label>
+        <button type="submit">Start Spamurai</button>
+    </form>
+
     <script>
-        
         const logsDiv = document.getElementById('logs');
+        const form = document.getElementById('spamuraiForm');
         const ws = new WebSocket('ws://localhost:3000');
 
+        // Incoming messages (logs + responses)
         ws.onmessage = (event) => {
-            const logData = JSON.parse(event.data);
+            const data = JSON.parse(event.data);
 
             const logElement = document.createElement('div');
             logElement.className = 'log';
 
-            logElement.textContent = logData.join(' ');
+            if (Array.isArray(data)) {
+                logElement.textContent = data.join(' ');
+            } else if (data.type === 'status' || data.type === 'error') {
+                logElement.textContent = `${data.type.toUpperCase()}: ${data.message}`;
+            } else {
+                logElement.textContent = '[Unknown log]';
+            }
 
             logsDiv.appendChild(logElement);
             logsDiv.scrollTop = logsDiv.scrollHeight;
         };
-        
 
+        // Form submission
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
 
+            const month = document.getElementById('month').value.trim();
+            const day = document.getElementById('day').value.trim();
+            const year = document.getElementById('year').value.trim();
+            const isAgree = document.getElementById('isAgree').checked;
+            const isDelete = document.getElementById('isDelete').checked;
+
+            if (!month || !day || !year) {
+                alert("Yo, fill out all the date fields ⚠️");
+                return;
+            }
+
+            const payload = { month, day, year, isAgree, isDelete };
+            ws.send(JSON.stringify({ type: 'startSpamurai', payload }));
+        });
+
+        // Auto-reconnect suggestion
+        ws.onclose = () => {
+            const log = document.createElement('div');
+            log.className = 'log';
+            log.textContent = '⚠️ Connection closed. Refresh to retry.';
+            logsDiv.appendChild(log);
+        };
     </script>
 </body>
-
 </html>

@@ -58,10 +58,22 @@ wss.on("connection", (ws) => {
             console.error('⚠️ Invalid JSON from client:', raw);
             return;
         }
-        console.log('📨 Received from client:', data);
-
-        ws.send(JSON.stringify({ type: 'PONG', received: data }));
+    
+        if (data.type === 'startSpamurai') {
+            const { month, day, year, isAgree, isDelete } = data.payload;
+    
+            if (month && day && year && typeof isAgree === 'boolean' && typeof isDelete === 'boolean') {
+                console.log("Spamurai is bootin’ up...");
+                startSpamurai(month, day, year, isAgree, isDelete);
+                ws.send(JSON.stringify({ type: 'status', message: '✅ Spamurai started' }));
+            } else {
+                ws.send(JSON.stringify({ type: 'error', message: '❌ Invalid fields, bruv' }));
+            }
+        } else {
+            console.log('🔍 Unknown message type:', data.type);
+        }
     });
+    
 
 
     ws.on('close', () => {
@@ -69,13 +81,27 @@ wss.on("connection", (ws) => {
     });
 });
 
-app.use(express.static("public"));
+// app.use(express.static("public"));
+// app.use(express.json());  // Add this line
 
-const month="10";
-const day="1";
-const year="2024";
-const isDelete=true;
-const isAgree=true;
+// app.use(express.json()); // BEFORE your routes
+
+// app.post("/spamurai", (req, res) => {
+//     const { month, day, year, isDelete, isAgree } = req.body;
+
+//     if (month && day && year && typeof isDelete === "boolean" && typeof isAgree === "boolean") {
+//         console.log("Spamurai is trying to start...");
+//         startSpamurai(month, day, year, isAgree, isDelete);
+//         res.status(200).send("Spamurai started successfully");
+//     } else {
+//         res.status(400).send("❌ Missing some required fields");
+//     }
+// });
+
+// const month="10";
+// const day="1";
+// const year="2024";
+// const isDelete=true;
+// const isAgree=true;
 
 // 5. Start your app
-startSpamurai(month ,day, year,isAgree, isDelete);
