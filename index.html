@@ -77,14 +77,23 @@
         const logsDiv = document.getElementById('logs');
         const form = document.getElementById('spamuraiForm');
         const ws = new WebSocket('ws://localhost:3000');
-
+    
+        let clientId = null; // 👈 each tab gets its own ID
+    
         // Incoming messages (logs + responses)
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
-
+    
+            // Assign client ID
+            if (data.type === 'id') {
+                clientId = data.clientId;
+                console.log("📛 Your tab's ID:", clientId);
+                return;
+            }
+    
             const logElement = document.createElement('div');
             logElement.className = 'log';
-
+    
             if (Array.isArray(data)) {
                 logElement.textContent = data.join(' ');
             } else if (data.type === 'status' || data.type === 'error') {
@@ -92,30 +101,35 @@
             } else {
                 logElement.textContent = '[Unknown log]';
             }
-
+    
             logsDiv.appendChild(logElement);
             logsDiv.scrollTop = logsDiv.scrollHeight;
         };
-
+    
         // Form submission
         form.addEventListener('submit', (e) => {
             e.preventDefault();
-
+    
             const month = document.getElementById('month').value.trim();
             const day = document.getElementById('day').value.trim();
             const year = document.getElementById('year').value.trim();
             const isAgree = document.getElementById('isAgree').checked;
             const isDelete = document.getElementById('isDelete').checked;
-
+    
             if (!month || !day || !year) {
                 alert("Yo, fill out all the date fields ⚠️");
                 return;
             }
-
+    
+            if (!clientId) {
+                alert("⛔️ Wait for the server to assign your ID before summoning Spamurai!");
+                return;
+            }
+    
             const payload = { month, day, year, isAgree, isDelete };
-            ws.send(JSON.stringify({ type: 'startSpamurai', payload }));
+            ws.send(JSON.stringify({ type: 'startSpamurai', payload, clientId }));
         });
-
+    
         // Auto-reconnect suggestion
         ws.onclose = () => {
             const log = document.createElement('div');
@@ -124,5 +138,6 @@
             logsDiv.appendChild(log);
         };
     </script>
+    
 </body>
 </html>

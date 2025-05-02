@@ -34,8 +34,8 @@ const imap = new Imap({
   host: process.env.HOST,
   port: Number(process.env.PORT),
   tls: true,
-  connTimeout: 5000,   
-  authTimeout: 5000,    
+  connTimeout: 10000,   
+  authTimeout: 10000,    
   tlsOptions: { rejectUnauthorized: false }
 });
 
