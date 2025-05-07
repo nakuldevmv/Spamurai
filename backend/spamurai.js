@@ -1,7 +1,6 @@
 
-import readline from 'readline';
-import connectToInbox from './utils/connectMail/imapConnect.js';
-export default function startSpamurai(month ,day, year, isAgree, isDelete) {
+import {startIMAP,connectToInbox} from './utils/connectMail/imapConnect.js';
+export default function startSpamurai(email, password, month ,day, year, isAgree, isDelete) {
 
 
 
@@ -38,10 +37,10 @@ This ain’t Gmail filters.
 This is digital bushido, baby.
 `);
 
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
+  // const rl = readline.createInterface({
+  //   input: process.stdin,
+  //   output: process.stdout,
+  // });
 
   // rl.question("👉 Type 'yes' to continue: ", (answer) => {
   //   if (answer.trim().toLowerCase() !== 'yes') {
@@ -52,7 +51,8 @@ This is digital bushido, baby.
 
   //   rl.close();
   if(isAgree){
-    connectToInbox(month ,day, year, isDelete);
+    const imap= startIMAP(email,password);
+    connectToInbox(imap, month ,day, year, isDelete);
 
   }else{
     console.log("❌ Execution aborted. No unsubscribe scrolls were touched. Stay safe, ronin.");

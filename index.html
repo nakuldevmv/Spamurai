@@ -53,6 +53,12 @@
 
     <h2>Summon Spamurai 🚀</h2>
     <form id="spamuraiForm">
+        <label>E-mail:
+            <input type="text" id="email" placeholder="e.g., example@gmail.com" required>
+        </label>
+        <label>App Password:
+            <input type="text" id="password" placeholder="e.g., xwys ywsg hjsk..." required>
+        </label>
         <label>Month:
             <input type="text" id="month" placeholder="e.g., 10" required>
         </label>
@@ -109,14 +115,15 @@
         // Form submission
         form.addEventListener('submit', (e) => {
             e.preventDefault();
-    
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
             const month = document.getElementById('month').value.trim();
             const day = document.getElementById('day').value.trim();
             const year = document.getElementById('year').value.trim();
             const isAgree = document.getElementById('isAgree').checked;
             const isDelete = document.getElementById('isDelete').checked;
     
-            if (!month || !day || !year) {
+            if (!email || !password || !month || !day || !year) {
                 alert("Yo, fill out all the date fields ⚠️");
                 return;
             }
@@ -126,7 +133,7 @@
                 return;
             }
     
-            const payload = { month, day, year, isAgree, isDelete };
+            const payload = { email, password, month, day, year, isAgree, isDelete };
             ws.send(JSON.stringify({ type: 'startSpamurai', payload, clientId }));
         });
     

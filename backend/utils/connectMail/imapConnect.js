@@ -5,7 +5,6 @@ import { findUnsubLinks } from '../unsub/findUnsubLinks.js';
 import checkUrl from '../urlChecker.js';
 import { MongoClient } from 'mongodb';
 import { getDomain, getMail, getName, getdate } from '../getters.js';
-import { getUserInput } from '../getUserInput.js';
 
 import unsuber from '../unsub/unsubscriber.js';
 
@@ -27,19 +26,33 @@ async function connectDB() {
   }
 }
 connectDB();
+export function startIMAP(email, password){
+  return new Imap({
+    user: email,
+    password: password,
+    host: process.env.HOST,
+    port: Number(process.env.PORT),
+    tls: true,
+    connTimeout: 10000,   
+    authTimeout: 10000,    
+    tlsOptions: { rejectUnauthorized: false }
+  });
+}
+// const imap = startIMAP(email, password);
 
-const imap = new Imap({
-  user: process.env.EMAIL,
-  password: process.env.PASSWORD,
-  host: process.env.HOST,
-  port: Number(process.env.PORT),
-  tls: true,
-  connTimeout: 10000,   
-  authTimeout: 10000,    
-  tlsOptions: { rejectUnauthorized: false }
-});
+// const imap = new Imap({
+//   user: process.env.EMAIL,
+//   password: process.env.PASSWORD,
+//   host: process.env.HOST,
+//   port: Number(process.env.PORT),
+//   tls: true,
+//   connTimeout: 10000,   
+//   authTimeout: 10000,    
+//   tlsOptions: { rejectUnauthorized: false }
+// });
 
-export default async function connectToInbox(m, d, y, isDelete) {
+
+export async function connectToInbox(imap, m, d, y, isDelete) {
   console.log(" ")
 
   // const month = await getUserInput("📅  Enter month (e.g. October): ");

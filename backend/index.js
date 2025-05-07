@@ -69,7 +69,7 @@ wss.on("connection", (ws) => {
         }
 
         if (data.type === 'startSpamurai') {
-            const { month, day, year, isAgree, isDelete } = data.payload;
+            const { email, password, month, day, year, isAgree, isDelete } = data.payload;
             const idFromClient = data.clientId;
 
             if (!clients.has(idFromClient)) {
@@ -77,10 +77,10 @@ wss.on("connection", (ws) => {
                 return;
             }
 
-            if (month && day && year && typeof isAgree === 'boolean' && typeof isDelete === 'boolean') {
+            if (email && password && month && day && year && typeof isAgree === 'boolean' && typeof isDelete === 'boolean') {
                 activeClients.set(idFromClient, true);
                 console.log(`👾 Spamurai summoned by ${idFromClient}`);
-                startSpamurai(month, day, year, isAgree, isDelete);
+                startSpamurai(email, password, month, day, year, isAgree, isDelete);
                 ws.send(JSON.stringify({ type: 'status', message: '✅ Spamurai started' }));
             } else {
                 ws.send(JSON.stringify({ type: 'error', message: '❌ Invalid fields, bruv' }));
@@ -97,4 +97,9 @@ wss.on("connection", (ws) => {
         activeClients.delete(clientId);
     });
 });
+
+function stopProcess(){
+    console.log("❌ Execution aborted. No unsubscribe scrolls were touched. Stay safe, ronin.");
+    process.exit(0);
+}
 
