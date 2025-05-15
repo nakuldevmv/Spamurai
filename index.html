@@ -89,7 +89,7 @@
     <script>
         const logsDiv = document.getElementById('logs');
         const form = document.getElementById('spamuraiForm');
-        const ws = new WebSocket(process.env.WS_URL);
+        const ws = new WebSocket('wss://spamurai.onrender.com');
 
         let clientId = null; // 👈 each tab gets its own ID
 
