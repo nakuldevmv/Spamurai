@@ -2,6 +2,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { v4 as uuidv4 } from 'uuid';
 import express from "express";
 
+export const clientStopFlags = new Map();
 const clients = new Map();
 const activeClients = new Map();
 // 1. First - Initialize console overrides immediately
@@ -80,11 +81,14 @@ wss.on("connection", (ws) => {
             if (email && password && month && day && year && typeof isAgree === 'boolean' && typeof isDelete === 'boolean') {
                 activeClients.set(idFromClient, true);
                 console.log(`👾 Spamurai summoned by ${idFromClient}`);
-                startSpamurai(email, password, month, day, year, isAgree, isDelete);
+                startSpamurai(email, password, month, day, year, isAgree, isDelete,idFromClient);
                 ws.send(JSON.stringify({ type: 'status', message: '✅ Spamurai started' }));
             } else {
                 ws.send(JSON.stringify({ type: 'error', message: '❌ Invalid fields, bruv' }));
             }
+            // fix this
+        } else if(data.type ==='stopProcess'){
+            stopProcess(data.clientId);
         } else {
             console.log('🔍 Unknown message type:', data.type);
         }
@@ -98,8 +102,10 @@ wss.on("connection", (ws) => {
     });
 });
 
-function stopProcess(){
-    console.log("❌ Execution aborted. No unsubscribe scrolls were touched. Stay safe, ronin.");
-    process.exit(0);
+function stopProcess(clientId) {
+    console.log(`❌ Execution aborted for client ${clientId}. No unsubscribe scrolls were touched. Stay safe, ronin.`);
+    clientStopFlags.set(clientId, true);
+    activeClients.set(clientId, false);
 }
+
 

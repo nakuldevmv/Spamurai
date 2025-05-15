@@ -1,6 +1,6 @@
 
 import {startIMAP,connectToInbox} from './utils/connectMail/imapConnect.js';
-export default function startSpamurai(email, password, month ,day, year, isAgree, isDelete) {
+export default function startSpamurai(email, password, month ,day, year, isAgree, isDelete,clientId) {
 
 
 
@@ -52,7 +52,7 @@ This is digital bushido, baby.
   //   rl.close();
   if(isAgree){
     const imap= startIMAP(email,password);
-    connectToInbox(imap, month ,day, year, isDelete);
+    connectToInbox(imap, month ,day, year, isDelete,clientId);
 
   }else{
     console.log("❌ Execution aborted. No unsubscribe scrolls were touched. Stay safe, ronin.");

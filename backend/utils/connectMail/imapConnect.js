@@ -5,6 +5,7 @@ import { findUnsubLinks } from '../unsub/findUnsubLinks.js';
 import checkUrl from '../urlChecker.js';
 import { MongoClient } from 'mongodb';
 import { getDomain, getMail, getName, getdate } from '../getters.js';
+import { clientStopFlags } from '../../index.js';
 
 import unsuber from '../unsub/unsubscriber.js';
 
@@ -22,19 +23,19 @@ async function connectDB() {
     // console.log("🗃️  Connected to Spamurai's Database");
 
   } catch (err) {
-    console.log(err);
+    console.log(err.message);
   }
 }
 connectDB();
-export function startIMAP(email, password){
+export function startIMAP(email, password) {
   return new Imap({
     user: email,
     password: password,
     host: process.env.HOST,
     port: Number(process.env.PORT),
     tls: true,
-    connTimeout: 10000,   
-    authTimeout: 10000,    
+    connTimeout: 10000,
+    authTimeout: 10000,
     tlsOptions: { rejectUnauthorized: false }
   });
 }
@@ -52,7 +53,7 @@ export function startIMAP(email, password){
 // });
 
 
-export async function connectToInbox(imap, m, d, y, isDelete) {
+export async function connectToInbox(imap, m, d, y, isDelete, clientId) {
   console.log(" ")
 
   // const month = await getUserInput("📅  Enter month (e.g. October): ");
@@ -88,7 +89,7 @@ export async function connectToInbox(imap, m, d, y, isDelete) {
       cleanFolder('[Gmail]/Spam', 'Spam')
         .then(() => openInbox())
         .catch((err) => {
-          console.log('🔴  Error in cleaning folders :: ', err);
+          console.log('🔴  Error in cleaning folders :: ', err.message);
           reject(err);
         });
 
@@ -101,7 +102,7 @@ export async function connectToInbox(imap, m, d, y, isDelete) {
 
             imap.search(['ALL'], (err, results) => {
               if (err) {
-                console.log(`🔴  Search Error in ${folderLabel} :: `, err);
+                console.log(`🔴  Search Error in ${folderLabel} :: `, err.message);
                 return reject(err);
               }
 
@@ -117,14 +118,14 @@ export async function connectToInbox(imap, m, d, y, isDelete) {
                   const { uid } = attrs;
                   console.log(`🗑️  Deleting ${folderLabel} UID : ${uid}`);
                   imap.addFlags(uid, '\\Deleted', (err) => {
-                    if (err) console.log(`🔴  Error marking ${folderLabel} email for deletion ::`, err);
+                    if (err) console.log(`🔴  Error marking ${folderLabel} email for deletion ::`, err.message);
                   });
                 });
               });
 
               fetch.once('end', () => {
                 imap.expunge((err) => {
-                  if (err) console.log('🔴  Expunge Error :: ', err);
+                  if (err) console.log('🔴  Expunge Error :: ', err.message);
                   else console.log(`✅  ${folderLabel} emails deleted.`);
                   resolve();
                 });
@@ -147,7 +148,7 @@ export async function connectToInbox(imap, m, d, y, isDelete) {
           try {
             imap.search([[`SINCE`, `${month.toUpperCase()} ${date}, ${year}`]], (err, results) => {
               if (err) {
-                console.log('🔴  Inbox Search Error:', err);
+                console.log('🔴  Inbox Search Error:', err.message);
                 return reject(err);
               }
 
@@ -179,7 +180,7 @@ export async function connectToInbox(imap, m, d, y, isDelete) {
                 msg.on('body', (stream) => {
                   simpleParser(stream, async (err, mail) => {
                     if (err) {
-                      console.log('🔴  Parse Error :: ', err);
+                      console.log('🔴  Parse Error :: ', err.message);
                     } else {
                       if (!isImportant && !isFlagged) {
 
@@ -214,13 +215,13 @@ export async function connectToInbox(imap, m, d, y, isDelete) {
     });
 
     imap.once('error', (err) => {
-      console.log('🔴  IMAP Error ::', err);
+      console.log('🔴  IMAP Error ::', err.message);
 
       if (err.code === 'ECONNRESET') {
         console.log('⚠️  Connection reset — salvaging scanned emails...');
         processParsedEmails();
       } else {
-        reject(err);
+        reject(err.message);
       }
     });
 
@@ -229,7 +230,11 @@ export async function connectToInbox(imap, m, d, y, isDelete) {
       let uidToDelete = [];
 
       for (const mail of emails) {
-
+        if (clientStopFlags.get(clientId)) {//stops the process for the current client
+          console.log(`🛑 Spamurai stopped early for ${clientId}`);
+          finish();
+          return;
+        }
         const unsubLinks = await findUnsubLinks(mail.mail);
 
         if (unsubLinks.length > 0) {
@@ -272,7 +277,7 @@ export async function connectToInbox(imap, m, d, y, isDelete) {
                     if (err?.errorResponse?.code === 11000) {
                       console.log("⚠️  Duplicate entry found! Ignoring...");
                     } else {
-                      console.log("🔴  MongoDB Error :: ", err);
+                      console.log("🔴  MongoDB Error :: ", err.message);
                     }
                   }
                 }
@@ -303,7 +308,7 @@ export async function connectToInbox(imap, m, d, y, isDelete) {
                 if (err?.errorResponse?.code === 11000) {
                   console.log("⚠️  Duplicate entry found! Ignoring...");
                 } else {
-                  console.log("🔴  MongoDB Error :: ", err);
+                  console.log("🔴  MongoDB Error :: ", err.message);
                 }
               }
 
@@ -324,7 +329,7 @@ export async function connectToInbox(imap, m, d, y, isDelete) {
                   if (err?.errorResponse?.code === 11000) {
                     console.log("⚠️  Duplicate entry found! Ignoring...");
                   } else {
-                    console.log("🔴  MongoDB Error :: ", err);
+                    console.log("🔴  MongoDB Error :: ", err.message);
                   }
                 }
               }
@@ -335,6 +340,7 @@ export async function connectToInbox(imap, m, d, y, isDelete) {
           console.log(" ")
         }
         emailsScanned++;
+
       }
       uidToDelete = uidToDelete.filter(item => item !== null);
       if (uidToDelete.length > 0) {
@@ -344,12 +350,12 @@ export async function connectToInbox(imap, m, d, y, isDelete) {
         console.log('📩  Moving mails to trash folder...');
         imap.delFlags(uidToDelete, ['\\Seen', '\\Flagged', '\\Answered', '\\Draft', '\\Recent'], (err) => {
           if (err) {
-            console.log("⚠️  Failed to clean up flags before moving:", err);
+            console.log("⚠️  Failed to clean up flags before moving:", err.message);
           }
 
           imap.move(uidToDelete, '[Gmail]/Trash', async (err) => {
             if (err) {
-              console.log("🔴  Error while moving mails :: ", err);
+              console.log("🔴  Error while moving mails :: ", err.message);
               finish();
             } else {
               console.log("✅  Mails moved to trash folder!");
@@ -357,15 +363,15 @@ export async function connectToInbox(imap, m, d, y, isDelete) {
               // const input = await getUserInput("🚨  Do you want to delete the message in trash? (y/n) : ")
               const input = isDelete;
               // if (input.toLowerCase() == 'y') {
-              if(input){
+              if (input) {
                 imap.addFlags(uidToDelete, '\\Deleted', err => {
                   if (err) {
-                    console.error('🔴 Error adding \\Deleted flags:', err);
+                    console.error('🔴 Error adding \\Deleted flags:', err.message);
                     return finish();
                   }
                   imap.expunge(err => {
                     if (err) {
-                      console.error('🔴 Expunge error:', err);
+                      console.error('🔴 Expunge error:', err.message);
                     } else {
                       console.log(" ")
                       console.log('🗑️  Mails successfully deleted!');

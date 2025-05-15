@@ -77,6 +77,9 @@
             Delete Spam Emails
         </label>
         <button type="submit">Start Spamurai</button>
+        <!-- fix this -->
+        <!-- <button onClick={stopProcess}>STOP</button> -->
+
     </form>
 
     <script>
@@ -111,7 +114,12 @@
             logsDiv.appendChild(logElement);
             logsDiv.scrollTop = logsDiv.scrollHeight;
         };
-    
+        // stoping the process fix this
+        function stopProcess(e){
+            e.preventDefault();
+            ws.send(JSON.stringify({ type: 'stopProcess', clientId }));
+
+        }
         // Form submission
         form.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -137,7 +145,6 @@
             ws.send(JSON.stringify({ type: 'startSpamurai', payload, clientId }));
         });
     
-        // Auto-reconnect suggestion
         ws.onclose = () => {
             const log = document.createElement('div');
             log.className = 'log';
