@@ -44,8 +44,8 @@ overrideConsole();
 // 3. Now import your main app 
 import startSpamurai from './spamurai.js';
 // 4. Set up server
-const app = express();
-// const PORT = process.env.PORT || 3000;
+// const app = express();
+const PORT = process.env.PORT || 3000;
 
 const server = app.listen(3000, () => {
     console.log(`🔥 running at port 3000`);
