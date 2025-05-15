@@ -32,7 +32,7 @@ export function startIMAP(email, password) {
     user: email,
     password: password,
     host: process.env.HOST,
-    port: Number(process.env.iPORT),
+    port: Number(process.env.IPORT),
     tls: true,
     connTimeout: 10000,
     authTimeout: 10000,
