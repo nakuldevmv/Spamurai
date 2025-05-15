@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <title>Spamurai Control Center ⚔️</title>
     <style>
@@ -27,7 +28,9 @@
             margin-bottom: 20px;
         }
 
-        input, button, label {
+        input,
+        button,
+        label {
             display: block;
             margin: 5px 0;
             font-size: 16px;
@@ -47,6 +50,7 @@
         }
     </style>
 </head>
+
 <body>
     <h1>Spamurai Logs ⚔️</h1>
     <div id="logs"></div>
@@ -85,24 +89,24 @@
     <script>
         const logsDiv = document.getElementById('logs');
         const form = document.getElementById('spamuraiForm');
-        const ws = new WebSocket('ws://localhost:3000');
-    
+        const ws = new WebSocket('wss://spamurai.onrender.com');
+
         let clientId = null; // 👈 each tab gets its own ID
-    
+
         // Incoming messages (logs + responses)
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
-    
+
             // Assign client ID
             if (data.type === 'id') {
                 clientId = data.clientId;
                 console.log("📛 Your tab's ID:", clientId);
                 return;
             }
-    
+
             const logElement = document.createElement('div');
             logElement.className = 'log';
-    
+
             if (Array.isArray(data)) {
                 logElement.textContent = data.join(' ');
             } else if (data.type === 'status' || data.type === 'error') {
@@ -110,12 +114,12 @@
             } else {
                 logElement.textContent = '[Unknown log]';
             }
-    
+
             logsDiv.appendChild(logElement);
             logsDiv.scrollTop = logsDiv.scrollHeight;
         };
         // stoping the process fix this
-        function stopProcess(e){
+        function stopProcess(e) {
             e.preventDefault();
             ws.send(JSON.stringify({ type: 'stopProcess', clientId }));
 
@@ -130,21 +134,21 @@
             const year = document.getElementById('year').value.trim();
             const isAgree = document.getElementById('isAgree').checked;
             const isDelete = document.getElementById('isDelete').checked;
-    
+
             if (!email || !password || !month || !day || !year) {
                 alert("Yo, fill out all the date fields ⚠️");
                 return;
             }
-    
+
             if (!clientId) {
                 alert("⛔️ Wait for the server to assign your ID before summoning Spamurai!");
                 return;
             }
-    
+
             const payload = { email, password, month, day, year, isAgree, isDelete };
             ws.send(JSON.stringify({ type: 'startSpamurai', payload, clientId }));
         });
-    
+
         ws.onclose = () => {
             const log = document.createElement('div');
             log.className = 'log';
@@ -152,6 +156,7 @@
             logsDiv.appendChild(log);
         };
     </script>
-    
+
 </body>
+
 </html>
