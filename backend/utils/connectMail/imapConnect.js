@@ -53,7 +53,7 @@ export function startIMAP(email, password) {
 // });
 
 
-export async function connectToInbox(imap, m, d, y, isDelete, clientId,curEmail) {
+export async function connectToInbox(imap, m, d, y, isDelete, clientId, curEmail) {
   console.log(" ")
 
   // const month = await getUserInput("📅  Enter month (e.g. October): ");
@@ -207,7 +207,10 @@ export async function connectToInbox(imap, m, d, y, isDelete, clientId,curEmail)
             });
           } catch (err) {
             console.log("🔴  Inbox Search Error :: ", err.message);
-            process.exit(0);
+            // process.exit(0);
+            imap.end();
+            client.close();
+            resolve();
 
           }
         });
