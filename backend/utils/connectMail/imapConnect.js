@@ -421,7 +421,7 @@ export async function connectToInbox(imap, m, d, y, isDelete, clientId) {
         imap.end();
         client.close();
         resolve();
-        process.exit(0);
+        // process.exit(0);
       }
 
     }
