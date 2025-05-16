@@ -138,9 +138,9 @@
             border-radius: 5px;
         }
 
-        .right-panel {
+        #logs {
             overflow: auto;
-            /* allow scrolling */
+            /* keep scrolling alive */
             scrollbar-width: none;
             /* Firefox */
             -ms-overflow-style: none;
@@ -148,9 +148,10 @@
         }
 
         /* Chrome, Safari, Edge, Opera */
-        .right-panel::-webkit-scrollbar {
+        #logs::-webkit-scrollbar {
             display: none;
         }
+
 
         /* Responsive layout for desktop */
         @media(min-width: 768px) {
