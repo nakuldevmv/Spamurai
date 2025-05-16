@@ -47,7 +47,7 @@ RUN chown -R pptruser:pptruser /app
 USER pptruser
 
 # Expose the port your Node app listens on
-EXPOSE 3000
+EXPOSE 10000
 
 # Launch the app
 CMD ["node", "index.js"]
