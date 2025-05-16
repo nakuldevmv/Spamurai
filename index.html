@@ -1,87 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>404 - You Dun Goofed</title>
-  <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-    }
-    body {
-      background-color: #1e1e1e;
-      color: #fff;
-      font-family: sans-serif;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-    h1 {
-      font-size: 3em;
-      margin-bottom: 20px;
-    }
-    p {
-      font-size: 1.5em;
-      margin-bottom: 30px;
-    }
-    .meme {
-      max-width: 100%;
-      height: auto;
-      border: 5px dashed #ff69b4;
-      border-radius: 10px;
-      padding: 0;
-      margin: 0 auto 20px;
-      display: block;
-    }
-    .button {
-      background-color: #ff69b4;
-      color: #fff;
-      padding: 15px 25px;
-      text-decoration: none;
-      font-size: 1.2em;
-      border-radius: 10px;
-      transition: background-color 0.3s ease;
-    }
-    .button:hover {
-      background-color: #ff1493;
-    }
+    <title>Spamurai ⚔️</title>
+    <style>
+        body {
+            font-family: monospace;
+            margin: 20px;
+            background-color: black;
+            color: white;
+        }
 
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-      h1 {
-        font-size: 2.5em;
-      }
-      p {
-        font-size: 1.2em;
-      }
-      .button {
-        padding: 12px 20px;
-        font-size: 1em;
-      }
-    }
+        #logs {
+            max-height: 50vh;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border: 1px solid #00ff99;
+            padding: 10px;
+        }
 
-    @media (max-width: 480px) {
-      h1 {
-        font-size: 2em;
-      }
-      p {
-        font-size: 1em;
-      }
-      .button {
-        padding: 10px 15px;
-        font-size: 0.9em;
-      }
-    }
-  </style>
+        .log {
+            padding: 5px 0;
+            border-bottom: 1px dashed #444;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        input,
+        button,
+        label {
+            display: block;
+            margin: 5px 0;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #00ff99;
+            color: black;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #00cc7a;
+        }
+    </style>
 </head>
+
 <body>
-  <h1>404 - Page Not Found</h1>
-  <p>Looks like you've ventured into the digital dojo and lost your way.</p>
-  <img class="meme" src="https://media.tenor.com/Ym6VeAcZoTcAAAAi/aaaah-cat.gif" alt="Cat">
-  <p>But fear not, young grasshopper. The path home is just a click away.</p>
-  <a class="button" href="https://youtu.be/dQw4w9WgXcQ?si=Jx5Mg1EgFSzLGTSs">Return to the Shogun's Domain</a>
+    <h1>Spamurai Logs ⚔️</h1>
+    <div id="logs"></div>
+
+    <h2>Summon Spamurai 🚀</h2>
+    <form id="spamuraiForm">
+        <label>E-mail:
+            <input type="text" id="email" placeholder="e.g., example@gmail.com" required>
+        </label>
+        <label>App Password:
+            <input type="text" id="password" placeholder="e.g., xwys ywsg hjsk..." required>
+        </label>
+        <label>Month:
+            <input type="text" id="month" placeholder="e.g., 10" required>
+        </label>
+        <label>Day:
+            <input type="text" id="day" placeholder="e.g., 1" required>
+        </label>
+        <label>Year:
+            <input type="text" id="year" placeholder="e.g., 2024" required>
+        </label>
+        <label>
+            <input type="checkbox" id="isAgree">
+            I Agree to Terms
+        </label>
+        <label>
+            <input type="checkbox" id="isDelete">
+            Delete Spam Emails
+        </label>
+        <button type="submit">Start Spamurai</button>
+        <!-- fix this -->
+        <!-- <button onClick={stopProcess}>STOP</button> -->
+
+    </form>
+
+    <script>
+        const logsDiv = document.getElementById('logs');
+        const form = document.getElementById('spamuraiForm');
+        // const ws = new WebSocket('ws://localhost:3000');
+        const ws = new WebSocket('wss://spamurai.onrender.com');
+        let clientId = null; // 👈 each tab gets its own ID
+
+        // Incoming messages (logs + responses)
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+
+            // Assign client ID
+            if (data.type === 'id') {
+                clientId = data.clientId;
+                console.log("📛 Your tab's ID:", clientId);
+                return;
+            }
+
+            const logElement = document.createElement('div');
+            logElement.className = 'log';
+
+            if (Array.isArray(data)) {
+                logElement.textContent = data.join(' ');
+            } else if (data.type === 'status' || data.type === 'error') {
+                logElement.textContent = `${data.type.toUpperCase()}: ${data.message}`;
+            } else {
+                logElement.textContent = '[Unknown log]';
+            }
+
+            logsDiv.appendChild(logElement);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        };
+        // stoping the process fix this
+        function stopProcess(e) {
+            e.preventDefault();
+            ws.send(JSON.stringify({ type: 'stopProcess', clientId }));
+
+        }
+        // Form submission
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const month = document.getElementById('month').value.trim();
+            const day = document.getElementById('day').value.trim();
+            const year = document.getElementById('year').value.trim();
+            const isAgree = document.getElementById('isAgree').checked;
+            const isDelete = document.getElementById('isDelete').checked;
+
+            if (!email || !password || !month || !day || !year) {
+                alert("Yo, fill out all the date fields ⚠️");
+                return;
+            }
+
+            if (!clientId) {
+                alert("⛔️ Wait for the server to assign your ID before summoning Spamurai!");
+                return;
+            }
+
+            const payload = { email, password, month, day, year, isAgree, isDelete };
+            ws.send(JSON.stringify({ type: 'startSpamurai', payload, clientId }));
+        });
+
+        ws.onclose = () => {
+            const log = document.createElement('div');
+            log.className = 'log';
+            log.textContent = '⚠️ Connection closed. Refresh to retry.';
+            logsDiv.appendChild(log);
+        };
+    </script>
+
 </body>
+
 </html>
