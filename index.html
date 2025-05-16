@@ -2,14 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>404 - You Dun Goofed</title>
   <style>
     body {
       background-color: #1e1e1e;
       color: #fff;
-      font-family: 'Comic Sans MS', cursive, sans-serif;
+      font-family: sans-serif;
       text-align: center;
       padding: 50px;
+      margin: 0;
     }
     h1 {
       font-size: 3em;
@@ -22,11 +24,11 @@
     .meme {
       max-width: 100%;
       height: auto;
-      margin: 20px 0;
       border: 5px dashed #ff69b4;
       border-radius: 10px;
-      padding: 0px;
-      margin: 0px;
+      padding: 0;
+      margin: 0 auto 20px;
+      display: block;
     }
     .button {
       background-color: #ff69b4;
@@ -40,12 +42,44 @@
     .button:hover {
       background-color: #ff1493;
     }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      body {
+        padding: 30px;
+      }
+      h1 {
+        font-size: 2.5em;
+      }
+      p {
+        font-size: 1.2em;
+      }
+      .button {
+        padding: 12px 20px;
+        font-size: 1em;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 20px;
+      }
+      h1 {
+        font-size: 2em;
+      }
+      p {
+        font-size: 1em;
+      }
+      .button {
+        padding: 10px 15px;
+        font-size: 0.9em;
+      }
+    }
   </style>
 </head>
 <body>
   <h1>404 - Page Not Found</h1>
   <p>Looks like you've ventured into the digital dojo and lost your way.</p>
-  <!-- <img class="meme" src="https://media1.tenor.com/m/SS5W3GW-8vAAAAAC/confused-huh.gif" alt="Confused Travolta"> -->
   <img class="meme" src="https://media.tenor.com/Ym6VeAcZoTcAAAAi/aaaah-cat.gif" alt="Cat">
   <p>But fear not, young grasshopper. The path home is just a click away.</p>
   <a class="button" href="https://youtu.be/dQw4w9WgXcQ?si=Jx5Mg1EgFSzLGTSs">Return to the Shogun's Domain</a>
