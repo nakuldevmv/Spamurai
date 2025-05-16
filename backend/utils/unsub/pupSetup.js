@@ -6,7 +6,7 @@ export async function launchSecureBrowser() {
     // const browser = await puppeteer.launch({
 
     // headless: 'new',
-    headless: false,
+    headless: true,
     args: [
       '--disable-setuid-sandbox',
       '--disable-extensions',
