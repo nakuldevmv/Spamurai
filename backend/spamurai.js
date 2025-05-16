@@ -56,7 +56,10 @@ This is digital bushido, baby.
 
   }else{
     console.log("❌ Execution aborted. No unsubscribe scrolls were touched. Stay safe, ronin.");
-    process.exit(0);
+    imap.end();
+    client.close();
+    resolve();
+    return;
     
   }
   // });
