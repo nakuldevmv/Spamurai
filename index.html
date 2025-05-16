@@ -1,106 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <title>Spamurai ⚔️</title>
+    <meta charset="UTF-8">
+    <title>SPAMURAI🤺</title>
     <style>
+        /* Color Variables */
+        :root {
+            --text: #e8ddf3;
+            --background: #000000;
+            --primary: #bf82f7;
+            --secondary: #03aba8;
+            --accent: #6eb1b4;
+        }
+
+        /* Base style */
         body {
             font-family: monospace;
             margin: 20px;
-            background-color: black;
-            color: white;
+            background-color: var(--background);
+            color: var(--text);
         }
 
-        #logs {
-            max-height: 50vh;
-            overflow-y: auto;
-            margin-bottom: 20px;
-            border: 1px solid #00ff99;
-            padding: 10px;
-        }
-
-        .log {
-            padding: 5px 0;
-            border-bottom: 1px dashed #444;
-        }
-
-        form {
-            margin-bottom: 20px;
-        }
-
-        input,
-        button,
-        label {
+        input, button, label {
             display: block;
             margin: 5px 0;
             font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        input {
+            padding: 8px;
+            border: 0.1px solid #292929;
+            border-radius: 4px;
+            background: var(--background);
+            color: var(--text);
+        }
+
+        /* Improved styling for checkboxes */
+        input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #292929;
+            border-radius: 4px;
+            margin-right: 8px;
+            vertical-align: middle;
+            cursor: pointer;
+        }
+
+        input[type="checkbox"]:checked {
+            background-color: var(--primary);
+            border-color: var(--secondary);
         }
 
         button {
-            background-color: #00ff99;
-            color: black;
+            background-color: var(--primary);
+            color: var(--background);
             padding: 10px;
             border: none;
             cursor: pointer;
             font-weight: bold;
+            border-radius: 4px;
         }
 
         button:hover {
-            background-color: #00cc7a;
+            background-color: var(--secondary);
+        }
+
+        /* Container for desktop layout */
+        .container {
+            display: block;
+            height: 100%;
+        }
+
+        /* Logs style with fixed height */
+        #logs {
+            height: 442px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            /* border: 1px solid var(--accent); */
+            padding: 10px;
+            background: #78787832;
+            border-radius: 5px;
+        }
+
+        .log {
+            padding: 5px 0;
+            border-bottom: 1px dashed var(--accent);
+        }
+
+        form {
+            margin-bottom: 20px;
+            background: var(--background);
+            padding: 10px;
+            /* border: 1px solid var(--accent); */
+            border-radius: 5px;
+        }
+
+        /* Responsive layout for desktop */
+        @media(min-width: 768px) {
+            .container {
+                display: flex;
+                gap: 20px;
+            }
+            .left-panel, .right-panel {
+                flex: 1;
+            }
+            /* Ensure logs panel takes half the screen on desktop */
+            .right-panel {
+                max-width: 50%;
+            }
         }
     </style>
 </head>
-
 <body>
-    <h1>Spamurai Logs ⚔️</h1>
-    <div id="logs"></div>
-
-    <h2>Summon Spamurai 🚀</h2>
-    <form id="spamuraiForm">
-        <label>E-mail:
-            <input type="text" id="email" placeholder="e.g., example@gmail.com" required>
-        </label>
-        <label>App Password:
-            <input type="text" id="password" placeholder="e.g., xwys ywsg hjsk..." required>
-        </label>
-        <label>Month:
-            <input type="text" id="month" placeholder="e.g., 10" required>
-        </label>
-        <label>Day:
-            <input type="text" id="day" placeholder="e.g., 1" required>
-        </label>
-        <label>Year:
-            <input type="text" id="year" placeholder="e.g., 2024" required>
-        </label>
-        <label>
-            <input type="checkbox" id="isAgree">
-            I Agree to Terms
-        </label>
-        <label>
-            <input type="checkbox" id="isDelete">
-            Delete Spam Emails
-        </label>
-        <button type="submit">Start Spamurai</button>
-        <!-- fix this -->
-        <!-- <button onClick={stopProcess}>STOP</button> -->
-
-    </form>
+    <h1>SPAMURAI🤺</h1>
+    <div class="container">
+        <div class="left-panel">
+            <form id="spamuraiForm">
+                <label>E-mail:
+                    <input type="text" id="email" placeholder="e.g., example@gmail.com" required>
+                </label>
+                <label>App Password:
+                    <input type="text" id="password" placeholder="e.g., xwys ywsg hjsk..." required>
+                </label>
+                <label>Month:
+                    <input type="text" id="month" placeholder="e.g., 10" required>
+                </label>
+                <label>Day:
+                    <input type="text" id="day" placeholder="e.g., 1" required>
+                </label>
+                <label>Year:
+                    <input type="text" id="year" placeholder="e.g., 2024" required>
+                </label>
+                <label style="display: flex; align-items: center; margin-bottom: 10px;">
+                    I Agree to Terms &nbsp;&nbsp;
+                    <input type="checkbox" id="isAgree" style="width: auto; margin-right: 5px;">
+                    
+                </label>
+                <label style="display: flex; align-items: center;">
+                    Delete Spam Emails&nbsp;
+                    <input type="checkbox" id="isDelete" style="width: auto; margin-right: 5px;">
+                </label>
+                <button type="submit">Start Spamurai</button>
+                <!-- <button onClick="stopProcess(event)">STOP</button> -->
+            </form>
+        </div> 
+        <div class="right-panel">
+            <div id="logs"></div>
+        </div>
+    </div>
 
     <script>
         const logsDiv = document.getElementById('logs');
         const form = document.getElementById('spamuraiForm');
-        // const ws = new WebSocket('ws://localhost:3000');
         const ws = new WebSocket('wss://spamurai.onrender.com');
-        let clientId = null; // 👈 each tab gets its own ID
+        let clientId = null;
 
-        // Incoming messages (logs + responses)
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
-
-            // Assign client ID
             if (data.type === 'id') {
                 clientId = data.clientId;
-                console.log("📛 Your tab's ID:", clientId);
+                console.log("Your tab's ID:", clientId);
                 return;
             }
 
@@ -114,17 +177,15 @@
             } else {
                 logElement.textContent = '[Unknown log]';
             }
-
             logsDiv.appendChild(logElement);
             logsDiv.scrollTop = logsDiv.scrollHeight;
         };
-        // stoping the process fix this
+
         function stopProcess(e) {
             e.preventDefault();
             ws.send(JSON.stringify({ type: 'stopProcess', clientId }));
-
         }
-        // Form submission
+
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value.trim();
@@ -156,7 +217,5 @@
             logsDiv.appendChild(log);
         };
     </script>
-
 </body>
-
 </html>
