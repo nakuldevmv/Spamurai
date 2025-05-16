@@ -14,6 +14,22 @@
             --accent: #6eb1b4;
         }
 
+        /* GitHub Profile Link */
+        .github-profile {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            color: var(--text);
+        }
+        .github-profile svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--text);
+        }
+
         /* Base style */
         body {
             font-family: monospace;
@@ -29,7 +45,7 @@
             width: 100%;
             box-sizing: border-box;
         }
-
+        
         input {
             padding: 8px;
             border: 0.1px solid #292929;
@@ -50,7 +66,7 @@
             vertical-align: middle;
             cursor: pointer;
         }
-
+        
         input[type="checkbox"]:checked {
             background-color: var(--primary);
             border-color: var(--secondary);
@@ -65,7 +81,7 @@
             font-weight: bold;
             border-radius: 4px;
         }
-
+        
         button:hover {
             background-color: var(--secondary);
         }
@@ -81,7 +97,6 @@
             height: 442px;
             overflow-y: auto;
             margin-bottom: 20px;
-            /* border: 1px solid var(--accent); */
             padding: 10px;
             background: #78787832;
             border-radius: 5px;
@@ -96,7 +111,6 @@
             margin-bottom: 20px;
             background: var(--background);
             padding: 10px;
-            /* border: 1px solid var(--accent); */
             border-radius: 5px;
         }
 
@@ -109,7 +123,6 @@
             .left-panel, .right-panel {
                 flex: 1;
             }
-            /* Ensure logs panel takes half the screen on desktop */
             .right-panel {
                 max-width: 50%;
             }
@@ -118,6 +131,19 @@
 </head>
 <body>
     <h1>SPAMURAI🤺</h1>
+    <a class="github-profile" href="https://github.com/nakuldevmv" target="_blank" title="GitHub Profile">
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path fill-rule="evenodd"
+            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
+            0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01
+            1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95
+            0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09
+                  2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87
+                  3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0
+                  16 8c0-4.42-3.58-8-8-8z">
+            </path>
+        </svg>
+    </a>
     <div class="container">
         <div class="left-panel">
             <form id="spamuraiForm">
@@ -126,12 +152,13 @@
                 </label>
                 <label>App Password:
                     <input type="text" id="password" placeholder="e.g., xwys ywsg hjsk..." required>
-                </label>
-                <label>Month:
-                    <input type="text" id="month" placeholder="e.g., 10" required>
+                    <small>Get your app password from <a href="https://myaccount.google.com/apppasswords" target="_blank">here</a>.</small>
                 </label>
                 <label>Day:
                     <input type="text" id="day" placeholder="e.g., 1" required>
+                </label>
+                <label>Month:
+                    <input type="text" id="month" placeholder="e.g., 10" required>
                 </label>
                 <label>Year:
                     <input type="text" id="year" placeholder="e.g., 2024" required>
@@ -139,14 +166,12 @@
                 <label style="display: flex; align-items: center; margin-bottom: 10px;">
                     I Agree to Terms &nbsp;&nbsp;
                     <input type="checkbox" id="isAgree" style="width: auto; margin-right: 5px;">
-                    
                 </label>
                 <label style="display: flex; align-items: center;">
                     Delete Spam Emails&nbsp;
                     <input type="checkbox" id="isDelete" style="width: auto; margin-right: 5px;">
                 </label>
                 <button type="submit">Start Spamurai</button>
-                <!-- <button onClick="stopProcess(event)">STOP</button> -->
             </form>
         </div> 
         <div class="right-panel">
