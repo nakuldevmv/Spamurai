@@ -62,9 +62,9 @@ export async function connectToInbox(imap, m, d, y, isDelete, clientId, curEmail
   const month = m;
   const date = d;
   const year = y;
-  console.log(`\n🧠  Pro tip: Want to scan your whole inbox? Just enter your birthday as the date 😎`);
+  // console.log(`\n🧠  Pro tip: Want to scan your whole inbox? Just enter your birthday as the date 😎`);
 
-  console.log(`⚠️  Full scans can take a long time—like, seriously long, depending on your inbox 🕰️`);
+  console.log(`\n⚠️  Full scans can take a long time - like, seriously long, depending on your inbox 🕰️`);
   console.log(`🙏  So yeah... be patient. A lot of patience. Like, monk-level patience 🧘‍♂️\n`);
 
 

@@ -160,11 +160,28 @@
                     <input type="text" id="email" placeholder="e.g., example@gmail.com" required>
                 </label>
                 <label>App Password:
-                    <input type="text" id="password" placeholder="e.g., xwys ywsg hjsk..." required>
+                    <input type="password" id="password" placeholder="e.g., xwys ywsg hjsk..." required>
                     <small>Get your app password from <a href="https://myaccount.google.com/apppasswords"
                             target="_blank" style="color: #ffffff;">here</a>.</small>
                 </label>
-                <label>Day:
+                <fieldset style="border: 1px solid #292929; padding: 10px; border-radius: 5px;">
+                    <legend style="color: var(--text); font-weight: bold;">Start Date for Scan</legend>
+                    <label>Day:
+                        <input type="text" id="day" placeholder="e.g., 1" required>
+                    </label>
+                    <label>Month:
+                        <input type="text" id="month" placeholder="e.g., 10" required>
+                    </label>
+                    <label>Year:
+                        <input type="text" id="year" placeholder="e.g., 2024" required>
+                    </label>
+                    <small style="color: #a0a0a0;">📅 Spamurai begins scanning from this date onward</small><br>
+                    <small style="color: #a0a0a0;">🧠 Pro tip: Wanna scan your whole inbox? Just enter your birthday
+                        😎</small>
+                </fieldset>
+
+
+                <!-- <label>Day:
                     <input type="text" id="day" placeholder="e.g., 1" required>
                 </label>
                 <label>Month:
@@ -172,7 +189,7 @@
                 </label>
                 <label>Year:
                     <input type="text" id="year" placeholder="e.g., 2024" required>
-                </label>
+                </label> -->
                 <label style="display: flex; align-items: center; margin-bottom: 10px;">
                     I Agree to&nbsp;<a href="terms.html" target="_blank"
                         style="color: #ffffff; text-decoration: underline;">Terms</a>&nbsp;&nbsp;
