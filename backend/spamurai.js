@@ -58,7 +58,7 @@ export default function startSpamurai(email, password, month ,day, year, isAgree
     console.log("❌ Execution aborted. No unsubscribe scrolls were touched. Stay safe, ronin.");
     // imap.end();
     // client.close();
-    resolve();
+    // resolve();
     return;
     
   }
