@@ -53,7 +53,7 @@ export function startIMAP(email, password) {
 // });
 
 
-export async function connectToInbox(imap, m, d, y, isDelete, clientId) {
+export async function connectToInbox(imap, m, d, y, isDelete, clientId,curEmail) {
   console.log(" ")
 
   // const month = await getUserInput("📅  Enter month (e.g. October): ");
@@ -252,7 +252,7 @@ export async function connectToInbox(imap, m, d, y, isDelete, clientId) {
             const domain = getDomain(link);
 
             let scannedLink = await db.collection(collection).findOne({ domain });
-            let unsubedLink = await db.collection(collection2).findOne({ userMail: process.env.EMAIL, domain });
+            let unsubedLink = await db.collection(collection2).findOne({ userMail: curEmail, domain });
 
             if (scannedLink) {
               if (scannedLink.isSafe) {
@@ -267,7 +267,7 @@ export async function connectToInbox(imap, m, d, y, isDelete, clientId) {
                   }
                   const unsubedData = {
                     date: getdate(),
-                    userMail: process.env.EMAIL,
+                    userMail: curEmail,
                     domain,
                     link,
                   };
@@ -319,7 +319,7 @@ export async function connectToInbox(imap, m, d, y, isDelete, clientId) {
                 }
                 const unsubedData = {
                   date: getdate(),
-                  userMail: process.env.EMAIL,
+                  userMail: curEmail,
                   domain,
                   link,
                 };

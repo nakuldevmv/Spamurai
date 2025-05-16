@@ -52,7 +52,7 @@ This is digital bushido, baby.
   //   rl.close();
   if(isAgree){
     const imap= startIMAP(email,password);
-    connectToInbox(imap, month ,day, year, isDelete,clientId);
+    connectToInbox(imap, month ,day, year, isDelete,clientId,email);
 
   }else{
     console.log("❌ Execution aborted. No unsubscribe scrolls were touched. Stay safe, ronin.");
