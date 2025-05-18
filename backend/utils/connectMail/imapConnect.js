@@ -20,8 +20,6 @@ async function connectDB() {
   try {
     await client.connect();
     db = await client.db(process.env.DB_NAME);
-    // console.log("🗃️  Connected to Spamurai's Database");
-
   } catch (err) {
     console.log(err.message);
   }
@@ -66,9 +64,15 @@ export async function connectToInbox(imap, m, d, y, isDelete, clientId, curEmail
 
   console.log(`\n⚠️  Full scans can take a long time - like, seriously long, depending on your inbox 🕰️`);
   console.log(`🙏  So yeah... be patient. A lot of patience. Like, monk-level patience 🧘‍♂️\n`);
+  let searchQuery;
 
-
-  console.log(`\n📅 Scanning emails starting from: ${month} ${date}, ${year}...\n`);
+  if (month === '1' && date === '1' && year === '1') {
+    searchQuery = ['ALL'];
+    console.log("\n📅  Scanning all emails in inbox...");
+  } else {
+    searchQuery = [['SINCE', `${month.toUpperCase()} ${date}, ${year}`]];
+    console.log(`\n📅  Scanning emails starting from: ${month} ${date}, ${year}...\n`);
+  }
 
   return new Promise((resolve, reject) => {
     const start = Date.now();
@@ -144,9 +148,8 @@ export async function connectToInbox(imap, m, d, y, isDelete, clientId, curEmail
           console.log(`📨  Total Inbox Messages : ${box.messages.total}`);
           console.log(" ")
 
-
           try {
-            imap.search([[`SINCE`, `${month.toUpperCase()} ${date}, ${year}`]], (err, results) => {
+            imap.search(searchQuery, (err, results) => {
               if (err) {
                 console.log('🔴  Inbox Search Error:', err.message);
                 return reject(err);
@@ -183,7 +186,7 @@ export async function connectToInbox(imap, m, d, y, isDelete, clientId, curEmail
                       console.log('🔴  Parse Error :: ', err.message);
                     } else {
                       if (!isImportant && !isFlagged) {
-
+                        // fix needed
                         emails.push({
                           uid,
                           from: mail.from,
@@ -219,12 +222,15 @@ export async function connectToInbox(imap, m, d, y, isDelete, clientId, curEmail
 
     imap.once('error', (err) => {
       console.log('🔴  IMAP Error ::', err.message);
-
+      if (imap) {
+        imap.end();
+      }
+      if (client) {
+        client.close();
+      }
       if (err.code === 'ECONNRESET') {
         console.log('⚠️  Connection reset — salvaging scanned emails...');
         processParsedEmails();
-      } else {
-        reject(err.message);
       }
     });
 

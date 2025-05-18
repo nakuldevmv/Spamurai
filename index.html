@@ -72,7 +72,7 @@
 
         input {
             padding: 8px;
-            border: 0.1px solid #292929;
+            border: 0.1px solid #b7b7b7;
             border-radius: 4px;
             background: var(--background);
             color: var(--text);
@@ -84,7 +84,7 @@
             -webkit-appearance: none;
             width: 18px;
             height: 18px;
-            border: 2px solid #292929;
+            border: 2px solid #b7b7b7;
             border-radius: 4px;
             margin-right: 8px;
             vertical-align: middle;
@@ -190,27 +190,26 @@
         <div class="left-panel">
             <form id="spamuraiForm">
                 <label>E-mail:
-                    <input type="text" id="email" placeholder="e.g., example@gmail.com" required>
+                    <input type="text" id="email" placeholder="example@gmail.com" required>
                 </label>
                 <label>App Password:
-                    <input type="password" id="password" placeholder="e.g., xwys ywsg hjsk..." required>
+                    <input type="password" id="password" placeholder="xwys ywsg hjsk..." required>
                     <small>Get your app password from <a href="https://myaccount.google.com/apppasswords"
                             target="_blank" style="color: #ffffff;">here</a>.</small>
                 </label>
-                <fieldset style="border: 1px solid #292929; padding: 10px; border-radius: 5px;">
+                <fieldset style="border: 1px solid var(--primary); padding: 10px; border-radius: 5px;">
                     <legend style="color: var(--text); font-weight: bold;">Start Date for Scan</legend>
                     <label>Day:
-                        <input type="text" id="day" placeholder="e.g., 1" required>
+                        <input type="text" id="day" placeholder="1" required>
                     </label>
                     <label>Month:
-                        <input type="text" id="month" placeholder="e.g., 10" required>
+                        <input type="text" id="month" placeholder="10" required>
                     </label>
                     <label>Year:
-                        <input type="text" id="year" placeholder="e.g., 2024" required>
+                        <input type="text" id="year" placeholder="2024" required>
                     </label>
                     <small style="color: #a0a0a0;">📅 Spamurai begins scanning from this date onward</small><br>
-                    <small style="color: #a0a0a0;">🧠 Pro tip: Wanna scan your whole inbox? Just enter your birthday
-                        😎</small>
+                    <small style="color: #a0a0a0;">🧠 Pro tip: To scan your entire inbox, simply set Day, Month, and Year to 1.</small>
                 </fieldset>
 
 
@@ -243,7 +242,9 @@
     <script>
         const logsDiv = document.getElementById('logs');
         const form = document.getElementById('spamuraiForm');
+        // const ws = new WebSocket('ws://localhost:3000');
         const ws = new WebSocket('wss://spamurai.onrender.com');
+
         let clientId = null;
 
         ws.onmessage = (event) => {
