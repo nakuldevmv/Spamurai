@@ -109,8 +109,8 @@ npm start        # or node index.js
 
 - [x] Smarter unsubscribe link detection   
 - [x] Advanced link‑safety heuristics & fallbacks  
+- [x] A Simple UI for I/O  
 - [ ] OAuth2 support for Gmail (drop app passwords)  
-- [ ] React + Vite dashboard for real‑time monitoring  
 
 ---
 
