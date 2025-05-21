@@ -3,12 +3,8 @@ export default async function startSpamurai(email, password, month, day, year, i
   console.clear();
   if (isAgree) {
     try {
-      console.log("🧙‍♂️ Connecting to the database...");
       await connectDB();
-      console.log("🧙‍♂️ Database connected.");
-      console.log("🧙‍♂️ Connecting to the inbox...");
       const imap = startIMAP(email, password);
-      console.log("🧙‍♂️ Inbox connected.");
       connectToInbox(imap, month, day, year, isDelete, clientId, email);
     } catch (e) {
       console.log(e.message);

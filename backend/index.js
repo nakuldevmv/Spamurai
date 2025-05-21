@@ -102,10 +102,10 @@ wss.on("connection", (ws) => {
     });
 });
 
-function stopProcess(clientId) {
-    console.log(`❌ Execution aborted for client ${clientId}. No unsubscribe scrolls were touched. Stay safe, ronin.`);
-    clientStopFlags.set(clientId, true);
-    activeClients.set(clientId, false);
-}
+// function stopProcess(clientId) {
+//     console.log(`❌ Execution aborted for client ${clientId}. No unsubscribe scrolls were touched. Stay safe, ronin.`);
+//     clientStopFlags.set(clientId, true);
+//     activeClients.set(clientId, false);
+// }
 
 
