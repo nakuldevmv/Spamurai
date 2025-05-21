@@ -91,6 +91,7 @@ export async function connectToInbox(imap, m, d, y, isDelete, clientId, curEmail
 
     imap.once('ready', () => {
       console.log(" ")
+      //Temporary removed auto spam folder cleaning functionality
         // cleanFolder('[Gmail]/Spam', 'Spam')
         .then(() => openInbox())
         .catch((err) => {
