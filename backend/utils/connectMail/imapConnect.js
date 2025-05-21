@@ -16,7 +16,7 @@ const client = new MongoClient(uri);
 let db;
 let collection = process.env.DB_COLLECTION;
 let collection2 = process.env.DB_COLLECTION2;
-async function connectDB() {
+export async function connectDB() {
   try {
     await client.connect();
     db = await client.db(process.env.DB_NAME);
@@ -24,7 +24,7 @@ async function connectDB() {
     console.log(err.message);
   }
 }
-connectDB();
+// connectDB();
 export function startIMAP(email, password) {
   return new Imap({
     user: email,

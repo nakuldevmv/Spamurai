@@ -1,5 +1,5 @@
 
-import {startIMAP,connectToInbox} from './utils/connectMail/imapConnect.js';
+import {connectDB,startIMAP,connectToInbox} from './utils/connectMail/imapConnect.js';
 export default function startSpamurai(email, password, month ,day, year, isAgree, isDelete,clientId) {
 
 
@@ -51,6 +51,7 @@ export default function startSpamurai(email, password, month ,day, year, isAgree
 
   //   rl.close();
   if(isAgree){
+    connectDB();
     const imap= startIMAP(email,password);
     connectToInbox(imap, month ,day, year, isDelete,clientId,email);
 
