@@ -91,55 +91,56 @@ export async function connectToInbox(imap, m, d, y, isDelete, clientId, curEmail
 
     imap.once('ready', () => {
       console.log(" ")
-        cleanFolder('[Gmail]/Spam', 'Spam')
+      //Temporarly removed auto spam folder cleaning functionality
+        // cleanFolder('[Gmail]/Spam', 'Spam')
         .then(() => openInbox())
         .catch((err) => {
           console.log('🔴  Error in cleaning folders :: ', err.message);
           reject(err);
         });
 
-      function cleanFolder(folderName, folderLabel) {
-        return new Promise((resolve, reject) => {
-          imap.openBox(folderName, false, (err, box) => {
-            if (err) return reject(err);
+      // function cleanFolder(folderName, folderLabel) {
+      //   return new Promise((resolve, reject) => {
+      //     imap.openBox(folderName, false, (err, box) => {
+      //       if (err) return reject(err);
 
-            console.log(`📫  Total ${folderLabel} Messages: ${box.messages.total}`);
+      //       console.log(`📫  Total ${folderLabel} Messages: ${box.messages.total}`);
 
-            imap.search(['ALL'], (err, results) => {
-              if (err) {
-                console.log(`🔴  Search Error in ${folderLabel} :: `, err.message);
-                return reject(err);
-              }
+      //       imap.search(['ALL'], (err, results) => {
+      //         if (err) {
+      //           console.log(`🔴  Search Error in ${folderLabel} :: `, err.message);
+      //           return reject(err);
+      //         }
 
-              if (!results.length) {
-                console.log(`📭  No ${folderLabel} emails to delete.`);
-                return resolve();
-              }
+      //         if (!results.length) {
+      //           console.log(`📭  No ${folderLabel} emails to delete.`);
+      //           return resolve();
+      //         }
 
-              const fetch = imap.fetch(results, { bodies: '' });
+      //         const fetch = imap.fetch(results, { bodies: '' });
 
-              fetch.on('message', (msg) => {
-                msg.once('attributes', (attrs) => {
-                  const { uid } = attrs;
-                  console.log(`🗑️  Deleting ${folderLabel} UID : ${uid}`);
-                  imap.addFlags(uid, '\\Deleted', (err) => {
-                    if (err) console.log(`🔴  Error marking ${folderLabel} email for deletion ::`, err.message);
-                  });
-                });
-              });
+      //         fetch.on('message', (msg) => {
+      //           msg.once('attributes', (attrs) => {
+      //             const { uid } = attrs;
+      //             console.log(`🗑️  Deleting ${folderLabel} UID : ${uid}`);
+      //             imap.addFlags(uid, '\\Deleted', (err) => {
+      //               if (err) console.log(`🔴  Error marking ${folderLabel} email for deletion ::`, err.message);
+      //             });
+      //           });
+      //         });
 
-              fetch.once('end', () => {
-                imap.expunge((err) => {
-                  if (err) console.log('🔴  Expunge Error :: ', err.message);
-                  else console.log(`✅  ${folderLabel} emails deleted.`);
-                  resolve();
-                });
-              });
-            });
-          });
-          console.log(" ")
-        });
-      }
+      //         fetch.once('end', () => {
+      //           imap.expunge((err) => {
+      //             if (err) console.log('🔴  Expunge Error :: ', err.message);
+      //             else console.log(`✅  ${folderLabel} emails deleted.`);
+      //             resolve();
+      //           });
+      //         });
+      //       });
+      //     });
+      //     console.log(" ")
+      //   });
+      // }
 
 
       function openInbox() {
