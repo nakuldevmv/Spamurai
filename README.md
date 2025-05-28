@@ -107,103 +107,67 @@ npm start        # or node index.js
 ## 7. 📊 Working Flowchart
 ```mermaid
 flowchart TD
-    %% Infrastructure Layer
-    subgraph "Infrastructure (Runtime/Infra)"
-        Docker["Docker Container"]:::infra
-        Env[".env Configuration"]:::infra
-    end
-
-    %% Application Layer
-    subgraph "Node.js Application"
-        Entry1["EntryPoint: index.js"]:::core
-        Entry2["EntryPoint: spamurai.js"]:::core
-        subgraph "Core Modules"
-            IMAP1["IMAP Connect: imapConnect.js"]:::core
-            IMAP2["IMAP Copy: imap-copy.js"]:::core
-            IMAP3["IMAP Backup: imapConnectBackup.js"]:::core
-            Parser1["Getters: getters.js"]:::core
-            Parser2["URL Checker: urlChecker.js"]:::core
-            Scanner["URL Scanner: ipqs.js"]:::core
-            Unsub1["Puppeteer Setup: pupSetup.js"]:::core
-            Unsub2["Find Links: findUnsubLinks.js"]:::core
-            Unsub3["Captcha Handler: captcha.js"]:::core
-            Unsub4["Unsubscriber: unsubscriber.js"]:::core
-            DB["Mongo Connect: mongoConnect.js"]:::core
-            CLI["CLI Handler: getUserInput.js"]:::core
+    subgraph "Spamurai Service"
+        ORC["Orchestrator (backend/index.js)"]:::internal
+        CFG["Configuration (.env)"]:::internal
+        IMAP["IMAP Connector"]:::internal
+        PARS["Mail Filter & Parser (getters.js)"]:::internal
+        subgraph "Unsubscribe Module"
+            FIND["Unsubscribe Link Extractor (findUnsubLinks.js)"]:::internal
+            PUPP["Puppeteer Setup (pupSetup.js)"]:::internal
         end
+        SCAN["Link Safety Scanner (ipqs.js)"]:::internal
+        subgraph "Unsubscriber Service"
+            UNS["Unsubscriber Logic (unsubscriber.js)"]:::internal
+            CAPTCHA["Captcha Handler (captcha.js)"]:::internal
+        end
+        CLEAN["Mail Cleanup (imap-copy.js)"]:::internal
+        MONGO_CLIENT["Logger / Persistence (mongoConnect.js)"]:::internal
     end
 
-    %% External Services
-    subgraph "External Services"
-        Gmail["Gmail IMAP (port 993)"]:::external
-        IPQS["IPQualityScore API"]:::external
-        PuppeteerService["Puppeteer Headless"]:::external
-    end
+    IMAP_SRV[("IMAP Server")]:::external
+    IPQS[("IPQualityScore API")]:::external
+    MONGO[("MongoDB Atlas")]:::db
 
-    %% Data Store
-    subgraph "Data Stores"
-        MongoDB["MongoDB Atlas"]:::datastore
-    end
+    ORC --> CFG
+    ORC --> IMAP
+    IMAP --> IMAP_SRV
+    ORC --> PARS
+    PARS --> FIND
+    FIND --> SCAN
+    SCAN -->|"safe"| PUPP
+    PUPP --> UNS
+    SCAN -->|"POST /check"| IPQS
+    SCAN --> MONGO_CLIENT
+    UNS -->|"click safe links"| MONGO_CLIENT
+    UNS --> CLEAN
+    CLEAN --> IMAP_SRV
+    MONGO_CLIENT --> MONGO
 
-    %% Connections
-    Env -->|provides config| Docker
-    Docker -->|runs| Entry1
-    Docker -->|runs| Entry2
+    CFG -.-> ORC
+    CFG -.-> IMAP
+    CFG -.-> PARS
+    CFG -.-> FIND
+    CFG -.-> SCAN
+    CFG -.-> UNS
+    CFG -.-> CLEAN
+    CFG -.-> MONGO_CLIENT
 
-    Entry1 -->|orchestrates| Entry2
-    Entry2 -->|uses| IMAP1
-    Entry2 -->|uses| IMAP2
-    Entry2 -->|uses| IMAP3
-    Entry2 -->|calls| CLI
+    click ORC "https://github.com/nakuldevmv/spamurai/blob/main/backend/index.js"
+    click IMAP "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/connectMail/imapConnect.js"
+    click PARS "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/getters.js"
+    click FIND "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/unsub/findUnsubLinks.js"
+    click PUPP "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/unsub/pupSetup.js"
+    click SCAN "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/scanners/ipqs.js"
+    click UNS "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/unsub/unsubscriber.js"
+    click CAPTCHA "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/unsub/captcha.js"
+    click CLEAN "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/connectMail/imap-copy.js"
+    click MONGO_CLIENT "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/server/mongoConnect.js"
+    click CFG "https://github.com/nakuldevmv/spamurai/blob/main/backend/example.env"
 
-    IMAP1 -->|IMAP fetch| Gmail
-    IMAP2 -->|IMAP fetch| Gmail
-    IMAP3 -->|IMAP fetch| Gmail
-
-    IMAP1 -->|outputs messages| Parser1
-    IMAP1 -->|outputs messages| Parser2
-
-    Parser1 -->|extracts links| Unsub2
-    Parser2 -->|validates URLs| Unsub2
-
-    Unsub2 -->|passes links| Scanner
-    Scanner -->|API request/response| IPQS
-    IPQS -->|returns verdict| Scanner
-
-    Scanner -->|safe links| Unsub1
-    Scanner -->|unsafe links| Unsub4
-
-    Unsub1 -->|browser navigation| PuppeteerService
-    Unsub1 -->|handles captcha| Unsub3
-    Unsub3 -->|solves| Unsub1
-
-    Unsub1 -->|completes flow| Unsub4
-    Unsub4 -->|logs result| DB
-    DB -->|connects| MongoDB
-
-    %% Click Events
-    click Entry1 "https://github.com/nakuldevmv/spamurai/blob/main/backend/index.js"
-    click Entry2 "https://github.com/nakuldevmv/spamurai/blob/main/backend/spamurai.js"
-    click IMAP1 "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/connectMail/imapConnect.js"
-    click IMAP2 "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/connectMail/imap-copy.js"
-    click IMAP3 "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/connectMail/imapConnectBaclup.js"
-    click Parser1 "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/getters.js"
-    click Parser2 "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/urlChecker.js"
-    click Scanner "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/scanners/ipqs.js"
-    click Unsub1 "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/unsub/pupSetup.js"
-    click Unsub2 "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/unsub/findUnsubLinks.js"
-    click Unsub3 "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/unsub/captcha.js"
-    click Unsub4 "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/unsub/unsubscriber.js"
-    click DB "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/server/mongoConnect.js"
-    click CLI "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/getUserInput.js"
-    click Docker "https://github.com/nakuldevmv/spamurai/tree/main/backend/Dockerfile"
-    click Env "https://github.com/nakuldevmv/spamurai/blob/main/backend/example.env"
-
-    %% Styles
-    classDef core fill:#D0E8FF,stroke:#009,stroke-width:1px
-    classDef external fill:#DFF2D8,stroke:#090,stroke-width:1px
-    classDef datastore fill:#FFF4C1,stroke:#CC0,stroke-width:1px
-    classDef infra fill:#FFE0B2,stroke:#F60,stroke-width:1px
+    classDef internal fill:#D6EAF8,stroke:#1B4F72
+    classDef external fill:#F2F3F4,stroke:#ABB2B9
+    classDef db fill:#D5F5E3,stroke:#1D8348
 ```
 ## 7. 🗺️ Roadmap
 
