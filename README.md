@@ -165,9 +165,10 @@ flowchart TD
     click MONGO_CLIENT "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/server/mongoConnect.js"
     click CFG "https://github.com/nakuldevmv/spamurai/blob/main/backend/example.env"
 
-    classDef internal fill:#D6EAF8,stroke:#1B4F72
-    classDef external fill:#F2F3F4,stroke:#ABB2B9
-    classDef db fill:#D5F5E3,stroke:#1D8348
+    classDef internal fill:#0E4C75,stroke:#5DADE2
+    classDef external fill:#2C3E50,stroke:#95A5A6
+    classDef db fill:#145A32,stroke:#58D68D
+
 ```
 ## 7. 🗺️ Roadmap
 
