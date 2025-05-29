@@ -87,9 +87,11 @@ wss.on("connection", (ws) => {
                 ws.send(JSON.stringify({ type: 'error', message: '❌ Invalid fields, bruv' }));
             }
             // fix this
-        } else if(data.type ==='stopProcess'){
-            stopProcess(data.clientId);
-        } else {
+        } 
+        // else if(data.type ==='stopProcess'){
+        //     stopProcess(data.clientId);
+        // }
+         else {
             console.log('🔍 Unknown message type:', data.type);
         }
     });
