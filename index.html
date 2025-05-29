@@ -179,7 +179,8 @@
 </head>
 
 <body>
-    <h1>SPAMURAI🤺</h1>
+    <h1>SPAMURAI <sup style="font-size: 0.5em; color: orange; background: #222; padding: 2px 6px; border-radius: 6px;">BETA</sup></h1>
+
     <a class="github-profile" href="https://github.com/nakuldevmv" target="_blank" title="GitHub Profile">
         <svg viewBox="0 0 16 16" aria-hidden="true">
             <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
@@ -248,7 +249,6 @@
             const data = JSON.parse(event.data);
             if (data.type === 'id') {
                 clientId = data.clientId;
-                // console.log("Your tab's ID:", clientId);
                 return;
             }
 

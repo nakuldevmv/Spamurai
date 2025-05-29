@@ -1,9 +1,9 @@
 import * as cheerio from 'cheerio';
-export function findUnsubLinks(parsedEmail) {
+export async function findUnsubLinks(parsedEmail) {
   const links = [];
 
   // look in headers
-  const headerValue = parsedEmail.headers.get('list-unsubscribe');
+  const headerValue =await parsedEmail.headers.get('list-unsubscribe');
   if (headerValue) {
     const parts = headerValue.split(',');
     for (let part of parts) {
@@ -13,8 +13,8 @@ export function findUnsubLinks(parsedEmail) {
   }
 
   // look in HTML body
-  if (parsedEmail.html) {
-    const $ = cheerio.load(parsedEmail.html);
+  if (await parsedEmail.html) {
+    const $ = cheerio.load(await parsedEmail.html);
     $('a').each((i, el) => {
       const text = $(el).text().toLowerCase();
       const href = $(el).attr('href');
