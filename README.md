@@ -104,7 +104,72 @@ npm start        # or node index.js
 - Backup your inbox if you’re feeling paranoid.
 
 ---
+## 7. 📊 Working Flowchart
+```mermaid
+flowchart TD
+    subgraph "Spamurai Service"
+        ORC["Orchestrator (backend/index.js)"]:::internal
+        CFG["Configuration (.env)"]:::internal
+        IMAP["IMAP Connector"]:::internal
+        PARS["Mail Filter & Parser (getters.js)"]:::internal
+        subgraph "Unsubscribe Module"
+            FIND["Unsubscribe Link Extractor (findUnsubLinks.js)"]:::internal
+            PUPP["Puppeteer Setup (pupSetup.js)"]:::internal
+        end
+        SCAN["Link Safety Scanner (ipqs.js)"]:::internal
+        subgraph "Unsubscriber Service"
+            UNS["Unsubscriber Logic (unsubscriber.js)"]:::internal
+            CAPTCHA["Captcha Handler (captcha.js)"]:::internal
+        end
+        CLEAN["Mail Cleanup (imap-copy.js)"]:::internal
+        MONGO_CLIENT["Logger / Persistence (mongoConnect.js)"]:::internal
+    end
 
+    IMAP_SRV[("IMAP Server")]:::external
+    IPQS[("IPQualityScore API")]:::external
+    MONGO[("MongoDB Atlas")]:::db
+
+    ORC --> CFG
+    ORC --> IMAP
+    IMAP --> IMAP_SRV
+    ORC --> PARS
+    PARS --> FIND
+    FIND --> SCAN
+    SCAN -->|"safe"| PUPP
+    PUPP --> UNS
+    SCAN -->|"POST /check"| IPQS
+    SCAN --> MONGO_CLIENT
+    UNS -->|"click safe links"| MONGO_CLIENT
+    UNS --> CLEAN
+    CLEAN --> IMAP_SRV
+    MONGO_CLIENT --> MONGO
+
+    CFG -.-> ORC
+    CFG -.-> IMAP
+    CFG -.-> PARS
+    CFG -.-> FIND
+    CFG -.-> SCAN
+    CFG -.-> UNS
+    CFG -.-> CLEAN
+    CFG -.-> MONGO_CLIENT
+
+    click ORC "https://github.com/nakuldevmv/spamurai/blob/main/backend/index.js"
+    click IMAP "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/connectMail/imapConnect.js"
+    click PARS "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/getters.js"
+    click FIND "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/unsub/findUnsubLinks.js"
+    click PUPP "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/unsub/pupSetup.js"
+    click SCAN "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/scanners/ipqs.js"
+    click UNS "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/unsub/unsubscriber.js"
+    click CAPTCHA "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/unsub/captcha.js"
+    click CLEAN "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/connectMail/imap-copy.js"
+    click MONGO_CLIENT "https://github.com/nakuldevmv/spamurai/blob/main/backend/utils/server/mongoConnect.js"
+    click CFG "https://github.com/nakuldevmv/spamurai/blob/main/backend/example.env"
+
+    classDef internal fill:#0E4C75,stroke:#5DADE2
+    classDef external fill:#2C3E50,stroke:#95A5A6
+    classDef db fill:#145A32,stroke:#58D68D
+
+```
 ## 7. 🗺️ Roadmap
 
 - [x] Smarter unsubscribe link detection   
