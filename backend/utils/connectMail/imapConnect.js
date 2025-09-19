@@ -62,8 +62,8 @@ export async function connectToInbox(imap, m, d, y, isDelete, clientId, curEmail
   const year = y;
   // console.log(`\n🧠  Pro tip: Want to scan your whole inbox? Just enter your birthday as the date 😎`);
 
-  console.log(`\n⚠️  Full scans can take a long time - like, seriously long, depending on your inbox 🕰️`);
-  console.log(`🙏  So yeah... be patient. A lot of patience. Like, monk-level patience 🧘‍♂️\n`);
+  console.log("⚠️ Full scans take time—please be patient 🕰️");
+
   let searchQuery;
 
   if (month === '1' && date === '1' && year === '1') {
@@ -418,7 +418,7 @@ export async function connectToInbox(imap, m, d, y, isDelete, clientId, curEmail
         console.log(`🔗  Total Unsub Links Found:   ${totalLinks}`);
         console.log(`🛡️  Safe Links:                ${safeLinkCount}`);
         console.log(`☠️  Unsafe Links:              ${unsafeLinkCount}`);
-        console.log(`✅  Successful Unsubscribes:   ${unsubCount}`);
+        // console.log(`✅  Successful Unsubscribes:   ${unsubCount}`);
         console.log(`⏱️  Total Scan Duration:       ${duration} seconds`);
         console.log("=============================================\n");
 
